@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+._*
+
+# Python build/cache (used by helper scripts in video/_overlay/)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Pipeline scratch from the video labelling / overlay generators.
+# These are intermediate frames; the final mp4s in video/ are committed.
+video/_overlay/work/
+
+# Editor / OS noise
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,1999 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description"
+        content="Power Foam: Unifying Real-Time Differentiable Ray Tracing and Rasterization">
+    <meta name="keywords"
+        content="3D scene representation, real-time rendering, differentiable rendering, ray tracing, rasterization, power diagrams, foam, radiance fields">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Power Foam: Unifying Real-Time Differentiable Ray Tracing and Rasterization</title>
+
+    <link rel="stylesheet" href="./static/css/bulma.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="./static/css/index.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script defer src="./static/js/fontawesome.all.min.js"></script>
+    <script src="./static/js/bulma-carousel.min.js"></script>
+    <script src="./static/js/bulma-slider.min.js"></script>
+    <script src="./static/js/index.js"></script>
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <link rel="stylesheet" href="./static/css/style.css">
+</head>
+
+<body>
+
+    <!-- Reading-progress bar (filled by JS as the user scrolls). -->
+    <div class="scroll-progress" aria-hidden="true"><div class="scroll-progress-fill"></div></div>
+
+    <!-- ============ TOP NAVBAR ============ -->
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
+                data-target="navbarBasic">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div id="navbarBasic" class="navbar-menu">
+            <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        More Research
+                    </a>
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="https://radfoam.github.io/">
+                            Radiant Foam
+                        </a>
+                        <a class="navbar-item" href="https://semanticfoam.github.io/">
+                            Semantic Foam
+                        </a>
+                        <!-- Add additional related projects here, e.g.: -->
+                        <!-- <a class="navbar-item" href="https://example.github.io/">ProjectName</a> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Floating mini-TOC pinned to the right edge on wide screens. JS
+         marks the entry corresponding to the current section as active. -->
+    <aside class="side-toc" aria-label="Page sections" data-toc>
+        <a href="#abstract" data-section="abstract">
+            <span class="side-toc-dot" aria-hidden="true"></span>
+            <span class="side-toc-label">Abstract</span>
+        </a>
+        <a href="#method" data-section="method">
+            <span class="side-toc-dot" aria-hidden="true"></span>
+            <span class="side-toc-label">Method</span>
+        </a>
+        <a href="#fps-benchmark" data-section="fps-benchmark">
+            <span class="side-toc-dot" aria-hidden="true"></span>
+            <span class="side-toc-label">Benchmark</span>
+        </a>
+        <a href="#results" data-section="results">
+            <span class="side-toc-dot" aria-hidden="true"></span>
+            <span class="side-toc-label">Comparisons</span>
+        </a>
+        <a href="#fisheye" data-section="fisheye">
+            <span class="side-toc-dot" aria-hidden="true"></span>
+            <span class="side-toc-label">Fisheye</span>
+        </a>
+        <a href="#raytracing" data-section="raytracing">
+            <span class="side-toc-dot" aria-hidden="true"></span>
+            <span class="side-toc-label">Ray-tracing</span>
+        </a>
+        <a href="#BibTeX" data-section="BibTeX">
+            <span class="side-toc-dot" aria-hidden="true"></span>
+            <span class="side-toc-label">BibTeX</span>
+        </a>
+    </aside>
+
+    <!-- Floating "back to top" button (revealed once the user scrolls
+         past the hero section). -->
+    <button type="button" class="back-to-top" aria-label="Back to top" data-back-to-top>
+        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+    </button>
+
+    <!-- ============ HERO / TITLE ============ -->
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container is-max-desktop">
+                <div class="columns is-centered">
+                    <div class="column has-text-centered">
+                        <h1 class="title is-1 publication-title">
+                            <img src="./static/images/powerfoam-title.png"
+                                alt="Power Foam"
+                                class="publication-title-logo"
+                                style="max-width: 900px; width: 90%;">
+                        </h1>
+                        <h2 class="subtitle is-3 publication-subtitle">
+                            Unifying Real-Time Differentiable Ray Tracing and Rasterization
+                        </h2>
+
+                        <div class="is-size-5 publication-authors">
+                            <span class="author-block">
+                                <a href="https://shrisudhan.github.io/">Shrisudhan Govindarajan*</a><sup>1,4</sup>,
+                            </span>
+                            <span class="author-block">
+                                <a href="https://scholar.google.com/citations?user=h-qFKrQAAAAJ&hl=en">Daniel Rebain*</a><sup>2</sup>,
+                            </span>
+                            <span class="author-block">
+                                <a href="https://dorverbin.github.io/">Dor Verbin</a><sup>3</sup>,
+                            </span>
+                            <span class="author-block">
+                                <a href="https://www.cs.ubc.ca/~kmyi/">Kwang Moo Yi</a><sup>2</sup>,
+                            </span>
+                            <br>
+                            <span class="author-block">
+                                <a href="https://scholar.google.com/citations?user=1zqcBjcAAAAJ&hl=en">Anish Prabhu</a><sup>4</sup>,
+                            </span>
+                            <span class="author-block">
+                                <a href="https://theialab.ca/">Andrea Tagliasacchi</a><sup>1,5</sup>
+                            </span>
+                        </div>
+
+                        <div class="is-size-6 publication-affiliations">
+                            <span class="author-block"><sup>1</sup>Simon Fraser University</span>
+                            <span class="author-block"><sup>2</sup>University of British Columbia</span>
+                            <span class="author-block"><sup>3</sup>Google DeepMind</span>
+                            <span class="author-block"><sup>4</sup>Google</span>
+                            <span class="author-block"><sup>5</sup>University of Toronto</span>
+                        </div>
+
+                        <div class="is-size-6 publication-equal-contribution">
+                            <span><sup>*</sup>Equal contribution</span>
+                        </div>
+
+                        <div class="publication-warning">
+                            Under Construction, don't share yet
+                        </div>
+
+                        <div class="column has-text-centered">
+                            <div class="publication-links">
+                                <!-- arXiv -->
+                                <span class="link-block">
+                                    <a href="#"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="ai ai-arxiv"></i>
+                                        </span>
+                                        <span>arXiv</span>
+                                    </a>
+                                </span>
+
+                                <!-- Paper -->
+                                <span class="link-block">
+                                    <a href="./paper.pdf"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </span>
+                                        <span>Paper</span>
+                                    </a>
+                                </span>
+
+                                <!-- Video -->
+                                <span class="link-block">
+                                    <a href="#results"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fab fa-youtube"></i>
+                                        </span>
+                                        <span>Video</span>
+                                    </a>
+                                </span>
+
+                                <!-- Code -->
+                                <span class="link-block">
+                                    <a href="#"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fab fa-github"></i>
+                                        </span>
+                                        <span>Code</span>
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ TEASER ============ -->
+    <section class="section teaser">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-full">
+                    <div class="teaser-video placeholder-video">
+                        teaser-video
+                    </div>
+                    <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
+                        Power Foam unifies real-time differentiable
+                        <b>ray tracing</b> and <b>rasterization</b> in a single scene representation.
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ ABSTRACT ============ -->
+    <section class="section" id="abstract">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-full">
+                    <h2 class="title is-3">Abstract</h2>
+                    <div class="content has-text-justified">
+                        <p>
+                            We introduce a differentiable 3D representation that unifies the ray tracing
+                            capabilities of foam-based ray tracing with the efficiency of modern rasterization
+                            pipelines. While prior foam representations enable constant-time ray traversal
+                            through an explicit volumetric partition of space, their potentially unbounded cells
+                            hinder efficient tile-based rasterization. We address this limitation by generalizing
+                            Voronoi foams to bounded <b>power diagrams</b> with controllable cell extents,
+                            enabling spatially bounded primitives without requiring expensive Delaunay
+                            triangulations during training.
+                            We further introduce an oriented surface formulation that explicitly models
+                            interfaces between interior and exterior regions, and decouple geometry from
+                            appearance by embedding differentiable texture directly on these surfaces. Together,
+                            these contributions yield a representation that preserves state-of-the-art ray
+                            tracing efficiency while achieving rasterization performance competitive with current
+                            generation 3DGS, providing a practical path toward unified real-time differentiable
+                            rendering.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ METHOD ============ -->
+    <section class="section" id="method">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-full">
+                    <h2 class="title is-3">Method</h2>
+                </div>
+            </div>
+
+            <div class="columns is-centered">
+                <div class="column is-full">
+                    <div class="content has-text-justified">
+                        <p>
+                            Our goal is to construct a representation that can be both rasterized
+                            and ray traced, but while foam structures are natively amenable to
+                            ray tracing, efficient rasterization requires bounded primitives that
+                            an unbounded foam lacks. Without such bounds, testing a cell's
+                            intersection with image tiles demands an unwieldy projected convex
+                            hull in screen space and often spans large regions where the cell is
+                            fully occluded. The simplest remedy is to restrict each Voronoi foam
+                            cell to its intersection with a rasterization-friendly bounding
+                            primitive such as a sphere &mdash; a structure already provided by
+                            computational geometry as the weighted &alpha;-complex, or more
+                            specifically its dual, which we refer to as the
+                            <em>bounded power diagram</em>. As illustrated below, the Voronoi
+                            diagram (left) builds cell faces from planes equidistant to the cell
+                            sites and the power diagram (center) builds them from per-cell radii;
+                            using those radii as bounding spheres (right) then ensures that all
+                            cell boundaries have gradients with respect to every cell parameter.
+                        </p>
+                    </div>
+                    <figure class="method-figure interactive-figure" id="interactive-radical-axis"
+                        aria-label="Interactive comparison of a Voronoi diagram, a power diagram, and a bounded power diagram on seven sites. Drag the red sites to move them, or drag any circle edge to resize it.">
+                        <div class="interactive-panels">
+                            <div class="interactive-panel-wrap">
+                                <svg class="interactive-panel" data-panel="0" data-kind="voronoi"
+                                    viewBox="-20 -20 40 40" preserveAspectRatio="xMidYMid meet"
+                                    xmlns="http://www.w3.org/2000/svg"></svg>
+                                <div class="interactive-panel-label">Voronoi diagram</div>
+                            </div>
+                            <div class="interactive-panel-wrap">
+                                <svg class="interactive-panel" data-panel="1" data-kind="power"
+                                    viewBox="-20 -20 40 40" preserveAspectRatio="xMidYMid meet"
+                                    xmlns="http://www.w3.org/2000/svg"></svg>
+                                <div class="interactive-panel-label">Power diagram</div>
+                            </div>
+                            <div class="interactive-panel-wrap">
+                                <svg class="interactive-panel" data-panel="2" data-kind="bounded"
+                                    viewBox="-20 -20 40 40" preserveAspectRatio="xMidYMid meet"
+                                    xmlns="http://www.w3.org/2000/svg"></svg>
+                                <div class="interactive-panel-label">Bounded power diagram</div>
+                            </div>
+                        </div>
+                        <div class="interactive-controls">
+                            <span>
+                                <span class="interactive-badge">Interactive</span>
+                                Drag the <b>red sites</b> to move them, or drag any
+                                <b>circle edge</b> to resize it.
+                            </span>
+                            <button type="button" class="reset-btn">Reset</button>
+                        </div>
+                    </figure>
+
+                    <div class="content has-text-justified">
+                        <p>
+                            Ray traversal additionally requires an adjacency graph between
+                            neighbouring cells: Radiant Foam obtained this from the Delaunay
+                            triangulation of its sites (left), and an unbounded power diagram
+                            would analogously require a regular triangulation (center). The
+                            bounded power diagram, in contrast, needs only its &alpha;-complex
+                            (right, blue), which drops edges between non-overlapping spheres
+                            and is therefore cheaper to build. We can simplify construction even
+                            further by replacing it with the &Ccaron;ech complex &mdash; the
+                            graph of all pairwise-overlapping spheres &mdash; which is a strict
+                            superset of the &alpha;-complex (right, blue + green). This
+                            approximation costs only a small amount of rendering speed while
+                            leaving the final output exactly correct.
+                        </p>
+                    </div>
+                    <figure class="method-figure interactive-figure" id="interactive-primal-meshes"
+                        aria-label="Interactive adjacency graphs: Delaunay triangulation, regular triangulation, and the alpha-complex / Cech complex of the bounded power diagram. Drag the red sites to move them, or drag any circle edge to resize it.">
+                        <div class="interactive-panels">
+                            <div class="interactive-panel-wrap">
+                                <svg class="interactive-panel" data-panel="0" data-kind="delaunay"
+                                    viewBox="-20 -20 40 40" preserveAspectRatio="xMidYMid meet"
+                                    xmlns="http://www.w3.org/2000/svg"></svg>
+                                <div class="interactive-panel-label">Delaunay triangulation</div>
+                            </div>
+                            <div class="interactive-panel-wrap">
+                                <svg class="interactive-panel" data-panel="1" data-kind="regular"
+                                    viewBox="-20 -20 40 40" preserveAspectRatio="xMidYMid meet"
+                                    xmlns="http://www.w3.org/2000/svg"></svg>
+                                <div class="interactive-panel-label">Regular triangulation</div>
+                            </div>
+                            <div class="interactive-panel-wrap">
+                                <svg class="interactive-panel" data-panel="2" data-kind="alpha"
+                                    viewBox="-20 -20 40 40" preserveAspectRatio="xMidYMid meet"
+                                    xmlns="http://www.w3.org/2000/svg"></svg>
+                                <div class="interactive-panel-label">&alpha;-complex (blue) &amp; &Ccaron;ech complex (blue + green)</div>
+                            </div>
+                        </div>
+                        <div class="interactive-controls">
+                            <span>
+                                <span class="interactive-badge">Interactive</span>
+                                Drag the <b>red sites</b> to move them, or drag any
+                                <b>circle edge</b> to resize it.
+                            </span>
+                            <button type="button" class="reset-btn">Reset</button>
+                        </div>
+                    </figure>
+
+                    <div class="content has-text-justified">
+                        <p>
+                            Finally, for our decoupled geometry and appearance framework, the
+                            dipole face acts as a proxy for macro-scale geometry, while detail
+                            sites \( s_i \) are optimized to capture high-frequency geometric
+                            and appearance details without increasing the primitive count.
+                            As illustrated below by zooming into a leaf-tip cell of the Garden
+                            scene, displacement values \( d_i \) associated with each detail
+                            site push the surface up or down locally along the axis of the
+                            dipole, and our soft Voronoi formulation distributes both these
+                            displacements and the directional radiance \( c_i \) of each
+                            detail site across the dipole plane (shown side, top-down, and
+                            with displacement, left to right).
+                        </p>
+                    </div>
+                    <figure class="zoom-figure">
+                        <!-- Desktop / wide layout: heatmap on the LEFT and the
+                             three dipole videos as a row on the RIGHT. -->
+                        <svg class="zoom-callout zoom-callout-desktop" viewBox="0 0 2930 700"
+                            preserveAspectRatio="xMidYMid meet"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-label="Distance heatmap of the Garden scene with a single leaf-tip cell highlighted, shown zoomed-in as side, top-down, and displacement views of its underlying dipole sphere.">
+                            <image href="./static/images/trajectory_distance_heatmap_first_frame.png"
+                                x="0" y="152" width="700" height="396"/>
+                            <g class="zoom-rays">
+                                <line x1="381" y1="213" x2="770" y2="0"/>
+                                <line x1="381" y1="253" x2="770" y2="700"/>
+                            </g>
+                            <rect class="zoom-marker" x="341" y="213" width="40" height="40"/>
+
+                            <rect class="zoom-target-frame" x="770" y="0" width="2160" height="700"/>
+                            <foreignObject x="780" y="10" width="680" height="680">
+                                <video xmlns="http://www.w3.org/1999/xhtml"
+                                    src="./video/side.mp4"
+                                    autoplay loop muted playsinline preload="metadata"
+                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
+                                    aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
+                            </foreignObject>
+                            <foreignObject x="1500" y="10" width="680" height="680">
+                                <video xmlns="http://www.w3.org/1999/xhtml"
+                                    src="./video/top_labeled.mp4"
+                                    autoplay loop muted playsinline preload="metadata"
+                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
+                                    aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
+                            </foreignObject>
+                            <foreignObject x="2220" y="10" width="680" height="680">
+                                <video xmlns="http://www.w3.org/1999/xhtml"
+                                    src="./video/displacement_labeled.mp4"
+                                    autoplay loop muted playsinline preload="metadata"
+                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
+                                    aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
+                            </foreignObject>
+                        </svg>
+
+                        <!-- Mobile / narrow layout: heatmap on TOP, the three
+                             dipole videos in a single row BELOW. Uses a tall
+                             (~1:1) viewBox so the heatmap and videos both stay
+                             readable on a phone screen. -->
+                        <svg class="zoom-callout zoom-callout-mobile" viewBox="0 0 1080 1090"
+                            preserveAspectRatio="xMidYMid meet"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-label="Distance heatmap of the Garden scene with a single leaf-tip cell highlighted, shown zoomed-in as side, top-down, and displacement views of its underlying dipole sphere.">
+                            <image href="./static/images/trajectory_distance_heatmap_first_frame.png"
+                                x="0" y="0" width="1080" height="608"/>
+                            <g class="zoom-rays">
+                                <line x1="526" y1="391" x2="10" y2="720"/>
+                                <line x1="588" y1="391" x2="1070" y2="720"/>
+                            </g>
+                            <rect class="zoom-marker" x="526" y="329" width="62" height="62"/>
+
+                            <rect class="zoom-target-frame" x="10" y="720" width="1060" height="360"/>
+                            <foreignObject x="20" y="730" width="340" height="340">
+                                <video xmlns="http://www.w3.org/1999/xhtml"
+                                    src="./video/side.mp4"
+                                    autoplay loop muted playsinline preload="metadata"
+                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
+                                    aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
+                            </foreignObject>
+                            <foreignObject x="370" y="730" width="340" height="340">
+                                <video xmlns="http://www.w3.org/1999/xhtml"
+                                    src="./video/top_labeled.mp4"
+                                    autoplay loop muted playsinline preload="metadata"
+                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
+                                    aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
+                            </foreignObject>
+                            <foreignObject x="720" y="730" width="340" height="340">
+                                <video xmlns="http://www.w3.org/1999/xhtml"
+                                    src="./video/displacement_labeled.mp4"
+                                    autoplay loop muted playsinline preload="metadata"
+                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
+                                    aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
+                            </foreignObject>
+                        </svg>
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FPS BENCHMARK ============ -->
+    <section class="section is-small" id="fps-benchmark">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-full">
+                    <h2 class="title is-3">Quantitative Comparisons</h2>
+                    <div class="content has-text-justified">
+                        <p>
+                            Power Foam is the only method that simultaneously matches the
+                            rasterization FPS of the corresponding state-of-the-art
+                            rasterizer (3DGS-MCMC) <em>and</em> the ray-tracing FPS
+                            of the corresponding state-of-the-art ray tracer (Radiant Foam).
+                            
+                        </p>
+                    </div>
+                    <figure class="image" style="margin: 1.5rem auto 0 auto;">
+                        <img src="./static/images/fps_combined.png"
+                             alt="Scatter plot comparing rasterization FPS (y-axis) against ray tracing FPS (x-axis) for several methods. Power Foam (ours) sits in the upper-right at ray 174 / raster 275, simultaneously matching the best rasterizer and the best ray tracer."
+                             style="display: block; margin: 0 auto; max-width: 100%; height: auto;">
+                        <figcaption style="margin-top: 0.75rem; font-size: 0.9rem; color: #555; text-align: center;">
+                            <sup>*</sup>The Radiance Meshes ray-tracing implementation failed to
+                            run on a subset of scenes; the reported numbers are extrapolated from
+                            the scenes on which it did run.
+                        </figcaption>
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ VISUAL COMPARISONS ============ -->
+    <section class="section is-light is-small" id="results">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-full">
+                    <h2 class="title is-3">Qualitative Comparisons</h2>
+                    <div class="content has-text-justified">
+                        <p>
+                            Our method achieves rendering quality comparable to 3DGUT and better than
+                            Radiant Foam. Specifically, we match the rasterization speed of 3DGUT while
+                            delivering superior ray tracing performance, and we achieve parity with Radiant Foam in
+                            ray tracing efficiency. For each scene, we display the ray tracing and rasterization
+                            frame rates (reported in that order) as an overlay in the top-right corner of the
+                            rendering.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-carousel">
+
+                <!-- Left-side up/down navigation -->
+                <div class="comparison-nav" role="toolbar" aria-label="Scene navigation">
+                    <button type="button" class="comparison-nav-btn" id="comparisonPrev"
+                        aria-label="Previous scene">
+                        <span class="icon"><i class="fas fa-chevron-up"></i></span>
+                    </button>
+                    <div class="comparison-indicator">
+                        <span class="comparison-scene-name" id="comparisonSceneName">Garden</span>
+                        <span class="comparison-counter" id="comparisonCounter">1 / 6</span>
+                    </div>
+                    <button type="button" class="comparison-nav-btn" id="comparisonNext"
+                        aria-label="Next scene">
+                        <span class="icon"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                </div>
+
+                <!-- Right side: headers + one visible video row -->
+                <div class="comparison-carousel-content">
+
+                    <!-- Column Headers -->
+                    <div class="columns is-centered has-text-centered" style="margin-bottom: 0;">
+                        <div class="column">
+                            <h3 class="title is-5">3DGUT</h3>
+                        </div>
+                        <div class="column">
+                            <h3 class="title is-5">Radiant Foam</h3>
+                        </div>
+                        <div class="column">
+                            <h3 class="title is-5">Power Foam (Ours)</h3>
+                        </div>
+                    </div>
+
+                    <div class="comparison-rows" id="comparisonRows">
+
+            <!-- Row: Garden -->
+            <div class="columns is-centered comparison-row is-active" data-scene="Garden">
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">68 / 127 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="3dgrut/garden_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">216 / - FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="radfoam/garden_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">162 / 244 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="powerfoam/garden_trajectory.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row: Stump -->
+            <div class="columns is-centered comparison-row" data-scene="Stump">
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">78 / 109 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="3dgrut/stump_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">164 / - FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="radfoam/stump_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">234 / 181 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="powerfoam/stump_trajectory.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row: Indoor 4 -->
+            <div class="columns is-centered comparison-row" data-scene="Indoor 4">
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">67 / 221 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="3dgrut/indoor4_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">115 / - FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="radfoam/indoor4_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">128 / 185 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="powerfoam/indoor4_trajectory.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row: Indoor 1 -->
+            <div class="columns is-centered comparison-row" data-scene="Indoor 1">
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">61 / 233 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="3dgrut/indoor1_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">123 / - FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="radfoam/indoor1_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">113 / 275 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="powerfoam/indoor1_trajectory.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row: Outdoor 1 -->
+            <div class="columns is-centered comparison-row" data-scene="Outdoor 1">
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">76 / 168 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="3dgrut/outdoor1_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">129 / - FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="radfoam/outdoor1_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">112 / 131 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="powerfoam/outdoor1_trajectory.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row: Outdoor 2 -->
+            <div class="columns is-centered comparison-row" data-scene="Outdoor 2">
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">64 / 229 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="3dgrut/outdoor2_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">109 / - FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="radfoam/outdoor2_renders.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="column">
+                    <div style="position: relative;">
+                        <div class="fps-overlay-container">
+                            <div class="fps-overlay-block fps-values">104 / 225 FPS</div>
+                            <div class="fps-overlay-block fps-label">Ray / Raster FPS</div>
+                        </div>
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="powerfoam/outdoor2_trajectory.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+
+                    </div><!-- /.comparison-rows -->
+                </div><!-- /.comparison-carousel-content -->
+            </div><!-- /.comparison-carousel -->
+
+        </div>
+    </section>
+
+    <!-- ============ FISHEYE ============ -->
+    <section class="section" id="fisheye">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-full">
+                    <h2 class="title is-3">Fisheye Rendering</h2>
+                    <div class="content has-text-justified">
+                        <p>
+                            We demonstrate Power Foam's ability to render fisheye
+                            images with both ray tracing and rasterization. Our pop-free sorting and exact
+                            volume rendering enable artifact-free fisheye rasterization &mdash; a regime where
+                            conventional rasterization-based methods typically fail.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="columns is-centered">
+                <div class="column">
+                    <h3 class="title is-5 has-text-centered">Rasterization</h3>
+                    <div style="position: relative;">
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="fisheye/rasterize_fisheye.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <h3 class="title is-5 has-text-centered">Ray-tracing</h3>
+                    <div style="position: relative;">
+                        <video poster="" autoplay controls muted loop playsinline
+                            style="width: 100%; border-radius: 8px; display: block;">
+                            <source src="fisheye/raytrace_fisheye.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ RAY-TRACING CAPABILITIES ============ -->
+    <section class="section" id="raytracing">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-full">
+                    <h2 class="title is-3">Ray-tracing Capabilities</h2>
+                    <div class="content has-text-justified">
+                        <p>
+                            Our representation retains the ray-tracing capabilities of
+                            Radiant Foam and can hence be used to model complex
+                            light-transport phenomena.
+                        </p>
+                    </div>
+                    <video src="./video/reflection_refraction_combined.mp4"
+                        autoplay loop muted playsinline preload="metadata"
+                        style="width: 100%; border-radius: 8px; display: block;"
+                        aria-label="Reflection and refraction trajectories rendered with Power Foam, demonstrating complex light-transport phenomena."></video>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ BIBTEX ============ -->
+    <section class="section" id="BibTeX">
+        <div class="container is-max-desktop content">
+            <div class="has-text-centered">
+                <h2 class="title is-3">BibTeX</h2>
+            </div>
+            <div class="bibtex-wrapper">
+                <button type="button" class="bibtex-copy-btn" data-target="bibtex-code"
+                    aria-label="Copy BibTeX entry to clipboard">
+                    <span class="bibtex-copy-icon" aria-hidden="true">
+                        <i class="far fa-copy"></i>
+                    </span>
+                    <span class="bibtex-copy-text">Copy</span>
+                </button>
+                <pre class="bibtex-block"><code id="bibtex-code">@article{govindarajan2026powerfoam,
+  title   = {Power Foam: Unifying Real-Time Differentiable Ray Tracing and Rasterization},
+  author  = {Govindarajan, Shrisudhan and Rebain, Daniel and Verbin, Dor and
+             Yi, Kwang Moo and Prabhu, Anish and Tagliasacchi, Andrea},
+  journal = {arXiv},
+  year    = {2026},
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <script>
+        if (typeof BeforeAfter !== 'undefined') {
+            new BeforeAfter({ id: '#example1' });
+        }
+
+        // ---- Reading progress bar -------------------------------------
+        // Width of the bar tracks scroll position from 0 to (scrollable
+        // height). Uses requestAnimationFrame to avoid layout thrashing.
+        (function () {
+            var fill = document.querySelector('.scroll-progress-fill');
+            if (!fill) return;
+            var ticking = false;
+            function update() {
+                var doc = document.documentElement;
+                var scrollTop = window.pageYOffset || doc.scrollTop;
+                var max = (doc.scrollHeight || doc.offsetHeight) - window.innerHeight;
+                var pct = max > 0 ? Math.min(100, (scrollTop / max) * 100) : 0;
+                fill.style.width = pct.toFixed(2) + '%';
+                ticking = false;
+            }
+            window.addEventListener('scroll', function () {
+                if (!ticking) {
+                    window.requestAnimationFrame(update);
+                    ticking = true;
+                }
+            }, { passive: true });
+            window.addEventListener('resize', update, { passive: true });
+            update();
+        })();
+
+        // ---- Heading anchor links (deep-link helpers) -----------------
+        // For every <section id="..."> with an <h2 class="title is-3">,
+        // inject a small "#" link before the heading text so visitors
+        // can hover to reveal and copy a permalink to that section.
+        (function () {
+            var sections = document.querySelectorAll('section[id] h2.title.is-3');
+            sections.forEach(function (h) {
+                var section = h.closest('section[id]');
+                if (!section) return;
+                if (h.querySelector('.heading-anchor')) return;
+                var a = document.createElement('a');
+                a.className = 'heading-anchor';
+                a.href = '#' + section.id;
+                a.setAttribute('aria-label', 'Permalink to ' + h.textContent.trim());
+                a.textContent = '#';
+                h.insertBefore(a, h.firstChild);
+            });
+        })();
+
+        // ---- Lazy-load + auto-pause for videos ------------------------
+        // Two complementary observers:
+        //   * a "load" observer with a generous rootMargin assigns the
+        //     real .mp4 src as the video gets near the viewport, so the
+        //     first paint of the page doesn't pay for every video on it;
+        //   * a "play" observer pauses videos that have left the viewport
+        //     and resumes the autoplay-eligible ones when they come back,
+        //     so the browser only spends decode budget on visible media.
+        (function () {
+            if (!('IntersectionObserver' in window)) return;
+
+            // Stage 1: rip the src off every <video>/<source> so nothing
+            // loads until the load observer fires.
+            var videos = Array.prototype.slice.call(document.querySelectorAll('video'));
+            videos.forEach(function (v) {
+                if (v.src) {
+                    v.dataset.src = v.src;
+                    v.removeAttribute('src');
+                }
+                v.querySelectorAll('source[src]').forEach(function (s) {
+                    s.dataset.src = s.getAttribute('src');
+                    s.removeAttribute('src');
+                });
+                v.dataset.shouldAutoplay = v.hasAttribute('autoplay') ? '1' : '0';
+            });
+
+            function hydrate(v) {
+                if (v.dataset.loaded === '1') return;
+                if (v.dataset.src) v.src = v.dataset.src;
+                v.querySelectorAll('source[data-src]').forEach(function (s) {
+                    s.setAttribute('src', s.dataset.src);
+                });
+                try { v.load(); } catch (e) { /* noop */ }
+                v.dataset.loaded = '1';
+            }
+
+            var loadObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        hydrate(entry.target);
+                        loadObserver.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: '400px 0px' });
+
+            var playObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    var v = entry.target;
+                    if (entry.isIntersecting) {
+                        if (v.dataset.shouldAutoplay === '1' && v.dataset.loaded === '1') {
+                            var p = v.play();
+                            if (p && p.catch) p.catch(function () { /* ignore */ });
+                        }
+                    } else {
+                        try { v.pause(); } catch (e) { /* noop */ }
+                    }
+                });
+            }, { rootMargin: '0px', threshold: 0 });
+
+            videos.forEach(function (v) {
+                loadObserver.observe(v);
+                playObserver.observe(v);
+            });
+        })();
+
+        // ---- Side TOC + active section highlight ----------------------
+        // One IntersectionObserver tracks every <section id>; the section
+        // with the largest visible area "wins" and its corresponding
+        // entries in the side TOC and the top navbar get .is-active.
+        (function () {
+            var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+            var tocLinks = document.querySelectorAll('.side-toc a[data-section]');
+            var navLinks = document.querySelectorAll('.nav-section-link[data-section]');
+            if (!sections.length) return;
+
+            var visibility = Object.create(null);
+
+            function setActive(id) {
+                tocLinks.forEach(function (a) {
+                    a.classList.toggle('is-active', a.dataset.section === id);
+                });
+                navLinks.forEach(function (a) {
+                    a.classList.toggle('is-active', a.dataset.section === id);
+                });
+            }
+
+            if ('IntersectionObserver' in window) {
+                var obs = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        visibility[entry.target.id] = entry.intersectionRatio;
+                    });
+                    var bestId = null;
+                    var bestRatio = 0;
+                    Object.keys(visibility).forEach(function (id) {
+                        if (visibility[id] > bestRatio) {
+                            bestRatio = visibility[id];
+                            bestId = id;
+                        }
+                    });
+                    if (bestId && bestRatio > 0) setActive(bestId);
+                }, {
+                    // Treat the middle 60 % of the viewport as the
+                    // "reading area"; whichever section overlaps it most
+                    // becomes the active one.
+                    rootMargin: '-20% 0px -20% 0px',
+                    threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
+                });
+                sections.forEach(function (s) { obs.observe(s); });
+            }
+
+            // Reveal the side TOC once the user has scrolled past the hero.
+            var toc = document.querySelector('[data-toc]');
+            if (toc) {
+                var heroH = (document.querySelector('.hero') || {}).offsetHeight || 400;
+                var onScroll = function () {
+                    if (window.pageYOffset > heroH * 0.6) toc.classList.add('is-visible');
+                    else toc.classList.remove('is-visible');
+                };
+                window.addEventListener('scroll', onScroll, { passive: true });
+                onScroll();
+            }
+        })();
+
+        // ---- Back-to-top button ---------------------------------------
+        (function () {
+            var btn = document.querySelector('[data-back-to-top]');
+            if (!btn) return;
+            var heroH = (document.querySelector('.hero') || {}).offsetHeight || 400;
+            var onScroll = function () {
+                if (window.pageYOffset > heroH) btn.classList.add('is-visible');
+                else btn.classList.remove('is-visible');
+            };
+            window.addEventListener('scroll', onScroll, { passive: true });
+            btn.addEventListener('click', function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            onScroll();
+        })();
+
+        // ---- BibTeX copy-to-clipboard ---------------------------------
+        (function () {
+            var btn = document.querySelector('.bibtex-copy-btn');
+            if (!btn) return;
+            var resetTimer = null;
+            btn.addEventListener('click', function () {
+                var target = document.getElementById(btn.dataset.target);
+                if (!target) return;
+                var text = target.innerText;
+                var done = function (ok) {
+                    btn.classList.remove('is-success', 'is-error');
+                    btn.classList.add(ok ? 'is-success' : 'is-error');
+                    var label = btn.querySelector('.bibtex-copy-text');
+                    if (label) label.textContent = ok ? 'Copied!' : 'Copy failed';
+                    if (resetTimer) clearTimeout(resetTimer);
+                    resetTimer = setTimeout(function () {
+                        btn.classList.remove('is-success', 'is-error');
+                        if (label) label.textContent = 'Copy';
+                    }, 1800);
+                };
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(function () { done(true); },
+                        function () { done(false); });
+                } else {
+                    // Fallback for older browsers / file:// origins.
+                    try {
+                        var ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.style.position = 'fixed';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        var ok = document.execCommand('copy');
+                        document.body.removeChild(ta);
+                        done(ok);
+                    } catch (e) {
+                        done(false);
+                    }
+                }
+            });
+        })();
+        (function () {
+            var containers = document.querySelectorAll('.fps-overlay-container');
+            if (!containers.length) return;
+            setInterval(function () {
+                containers.forEach(function (el) {
+                    el.classList.toggle('show-label');
+                });
+            }, 5000);
+        })();
+
+        // Up/down carousel for the Visual Comparisons rows.
+        (function () {
+            var rows = document.querySelectorAll('#comparisonRows .comparison-row');
+            var prevBtn = document.getElementById('comparisonPrev');
+            var nextBtn = document.getElementById('comparisonNext');
+            var nameEl = document.getElementById('comparisonSceneName');
+            var counterEl = document.getElementById('comparisonCounter');
+            if (!rows.length || !prevBtn || !nextBtn) return;
+
+            var total = rows.length;
+            var current = 0;
+
+            function pauseRowVideos(row) {
+                row.querySelectorAll('video').forEach(function (v) {
+                    try { v.pause(); } catch (e) { /* noop */ }
+                });
+            }
+
+            function playRowVideos(row) {
+                row.querySelectorAll('video').forEach(function (v) {
+                    try {
+                        v.currentTime = 0;
+                        var p = v.play();
+                        if (p && typeof p.catch === 'function') { p.catch(function () { }); }
+                    } catch (e) { /* noop */ }
+                });
+            }
+
+            function show(idx) {
+                idx = ((idx % total) + total) % total;
+                rows.forEach(function (row, i) {
+                    if (i === idx) {
+                        row.classList.add('is-active');
+                        playRowVideos(row);
+                    } else {
+                        row.classList.remove('is-active');
+                        pauseRowVideos(row);
+                    }
+                });
+                current = idx;
+                if (nameEl) nameEl.textContent = rows[idx].dataset.scene || ('Scene ' + (idx + 1));
+                if (counterEl) counterEl.textContent = (idx + 1) + ' / ' + total;
+            }
+
+            prevBtn.addEventListener('click', function () { show(current - 1); });
+            nextBtn.addEventListener('click', function () { show(current + 1); });
+
+            // Keyboard arrows (only when the carousel section is in view).
+            document.addEventListener('keydown', function (e) {
+                if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+                var tag = (document.activeElement && document.activeElement.tagName) || '';
+                if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+                var section = document.getElementById('results');
+                if (!section) return;
+                var rect = section.getBoundingClientRect();
+                var inView = rect.top < window.innerHeight && rect.bottom > 0;
+                if (!inView) return;
+                e.preventDefault();
+                show(current + (e.key === 'ArrowDown' ? 1 : -1));
+            });
+
+            // Initialise: ensure only the first row is active and others are paused.
+            show(0);
+        })();
+    </script>
+
+    <script>
+        // Bulma navbar burger toggle for small screens.
+        document.addEventListener('DOMContentLoaded', function () {
+            var burgers = document.querySelectorAll('.navbar-burger');
+            burgers.forEach(function (burger) {
+                burger.addEventListener('click', function () {
+                    var target = document.getElementById(burger.dataset.target);
+                    burger.classList.toggle('is-active');
+                    if (target) target.classList.toggle('is-active');
+                });
+            });
+        });
+    </script>
+
+    <script>
+        // Interactive Method Figure: Voronoi / power / bounded power diagrams.
+        // Shared state (seven sites + seven radii) drives all three panels.
+        // Ports the geometry pipeline of generate_fig2_image in method_figures.py:
+        //   weighted_circumcenter, compute_triangulation, compute_diagram_edges,
+        //   clip_segments_to_sphere_union, get_shared_geometry, fill_power_cells.
+        (function () {
+            const SVG_NS = 'http://www.w3.org/2000/svg';
+
+            // Panel coordinate system: viewBox "-20 -20 40 40" (mm, centred).
+            const PANEL_RECT = { x0: -20, y0: -20, x1: 20, y1: 20 };
+
+            // Constants from method_figures.py _FIG23_ZOOM and friends.
+            const FIG23_ZOOM = 1.4;
+            const HEX_SPACING = 7.0 * FIG23_ZOOM;
+
+            const INITIAL_SITES = [{ x: 0, y: 0 }];
+            for (let _i = 0; _i < 6; _i++) {
+                const _a = Math.PI / 6 + _i * Math.PI / 3;
+                INITIAL_SITES.push({
+                    x: HEX_SPACING * Math.cos(_a),
+                    y: HEX_SPACING * Math.sin(_a),
+                });
+            }
+            const INITIAL_RADII =
+                [4.0, 8.0, 2.0, 3.5, 7.0, 5.0, 5.5].map(function (r) { return r * FIG23_ZOOM; });
+
+            // Pastel cell colours: HSV(h = (i + 0.5) / 7, s = 0.22, v = 0.97),
+            // enumerated in reverse order to match CELL_COLORS in the Python figure.
+            function hsvToRgb(h, s, v) {
+                const i = Math.floor(h * 6);
+                const f = h * 6 - i;
+                const p = v * (1 - s);
+                const q = v * (1 - f * s);
+                const t = v * (1 - (1 - f) * s);
+                let r, g, b;
+                switch (i % 6) {
+                    case 0: r = v; g = t; b = p; break;
+                    case 1: r = q; g = v; b = p; break;
+                    case 2: r = p; g = v; b = t; break;
+                    case 3: r = p; g = q; b = v; break;
+                    case 4: r = t; g = p; b = v; break;
+                    default: r = v; g = p; b = q; break;
+                }
+                return 'rgb(' + Math.round(r * 255) + ',' +
+                    Math.round(g * 255) + ',' + Math.round(b * 255) + ')';
+            }
+            const CELL_COLORS = [];
+            for (let _i = 6; _i >= 0; _i--) {
+                CELL_COLORS.push(hsvToRgb((_i + 0.5) / 7, 0.22, 0.97));
+            }
+
+            const SITE_R = 0.55;
+            const SITE_HIT_R = 2.5;
+            const SITE_PULSE_R = 1.9;
+            const MIN_RADIUS = 0.6;
+            const SITE_MARGIN = 0.8;          // clamp sites this far from panel edges
+            const MIN_SITE_SEPARATION = 1.3;  // minimum distance between any two sites
+            const OVERLAP_EPS = 1e-9;
+
+            // One shared state (7 sites + 7 radii). All panels in all figures
+            // render from it, and any drag in any figure updates every panel.
+            const state = {
+                sites: INITIAL_SITES.map(function (p) {
+                    return { x: p.x, y: p.y };
+                }),
+                radii: INITIAL_RADII.slice(),
+            };
+            let allPanels = [];
+
+            function el(tag, attrs) {
+                const e = document.createElementNS(SVG_NS, tag);
+                if (attrs) {
+                    for (const k in attrs) {
+                        if (attrs[k] !== undefined && attrs[k] !== null) {
+                            e.setAttribute(k, attrs[k]);
+                        }
+                    }
+                }
+                return e;
+            }
+
+            // -------- generic geometry helpers --------
+
+            function lineCircleIntersectT(origin, dir, c, r) {
+                const ox = origin.x - c.x;
+                const oy = origin.y - c.y;
+                const a = dir.x * dir.x + dir.y * dir.y;
+                const b = 2 * (ox * dir.x + oy * dir.y);
+                const cc = ox * ox + oy * oy - r * r;
+                const disc = b * b - 4 * a * cc;
+                if (disc < 0) return [];
+                const sd = Math.sqrt(disc);
+                return [(-b - sd) / (2 * a), (-b + sd) / (2 * a)];
+            }
+
+            // Clip a finite segment p1 -> p2 to an axis-aligned rect.
+            function clipSegmentToRect(p1, p2, rect) {
+                let tMin = 0, tMax = 1;
+                const dx = p2.x - p1.x, dy = p2.y - p1.y;
+                const edges = [
+                    { p: -dx, q: p1.x - rect.x0 },
+                    { p:  dx, q: rect.x1 - p1.x },
+                    { p: -dy, q: p1.y - rect.y0 },
+                    { p:  dy, q: rect.y1 - p1.y },
+                ];
+                for (let i = 0; i < edges.length; i++) {
+                    const p = edges[i].p, q = edges[i].q;
+                    if (Math.abs(p) < 1e-12) {
+                        if (q < 0) return null;
+                        continue;
+                    }
+                    const t = q / p;
+                    if (p < 0) {
+                        if (t > tMax) return null;
+                        if (t > tMin) tMin = t;
+                    } else {
+                        if (t < tMin) return null;
+                        if (t < tMax) tMax = t;
+                    }
+                }
+                return [
+                    { x: p1.x + tMin * dx, y: p1.y + tMin * dy },
+                    { x: p1.x + tMax * dx, y: p1.y + tMax * dy },
+                ];
+            }
+
+            // -------- weighted Delaunay (regular) triangulation --------
+            // Direct port of weighted_circumcenter + compute_triangulation
+            // in method_figures.py:195-478.
+
+            function weightedCircumcenter(p1, p2, p3, w1, w2, w3) {
+                const ax = 2 * (p2.x - p1.x);
+                const ay = 2 * (p2.y - p1.y);
+                const bx = 2 * (p3.x - p1.x);
+                const by = 2 * (p3.y - p1.y);
+                const rhs1 = (p2.x * p2.x + p2.y * p2.y - w2)
+                           - (p1.x * p1.x + p1.y * p1.y - w1);
+                const rhs2 = (p3.x * p3.x + p3.y * p3.y - w3)
+                           - (p1.x * p1.x + p1.y * p1.y - w1);
+                const det = ax * by - ay * bx;
+                if (Math.abs(det) < 1e-12) return null;
+                return {
+                    x: (rhs1 * by - rhs2 * ay) / det,
+                    y: (ax * rhs2 - bx * rhs1) / det,
+                };
+            }
+
+            function computeTriangulation(points, weights) {
+                const n = points.length;
+                const tris = [];
+                for (let i = 0; i < n; i++) {
+                    for (let j = i + 1; j < n; j++) {
+                        for (let k = j + 1; k < n; k++) {
+                            const cc = weightedCircumcenter(
+                                points[i], points[j], points[k],
+                                weights[i], weights[j], weights[k]);
+                            if (!cc) continue;
+                            const pwCC =
+                                (cc.x - points[i].x) * (cc.x - points[i].x) +
+                                (cc.y - points[i].y) * (cc.y - points[i].y) -
+                                weights[i];
+                            let ok = true;
+                            for (let l = 0; l < n; l++) {
+                                if (l === i || l === j || l === k) continue;
+                                const pw =
+                                    (cc.x - points[l].x) * (cc.x - points[l].x) +
+                                    (cc.y - points[l].y) * (cc.y - points[l].y) -
+                                    weights[l];
+                                if (pw < pwCC - 1e-9) { ok = false; break; }
+                            }
+                            if (ok) tris.push([i, j, k]);
+                        }
+                    }
+                }
+                const edges = new Set();
+                for (let t = 0; t < tris.length; t++) {
+                    const tri = tris[t];
+                    for (let a = 0; a < 3; a++) {
+                        const u = tri[a], v = tri[(a + 1) % 3];
+                        edges.add(Math.min(u, v) + ',' + Math.max(u, v));
+                    }
+                }
+                return { tris: tris, edges: edges };
+            }
+
+            // Direct port of compute_diagram_edges in method_figures.py:481-534.
+            function computeDiagramEdges(points, tris, edges, weights) {
+                const edgeToTris = new Map();
+                for (let ti = 0; ti < tris.length; ti++) {
+                    const tri = tris[ti];
+                    for (let a = 0; a < 3; a++) {
+                        const u = tri[a], v = tri[(a + 1) % 3];
+                        const key = Math.min(u, v) + ',' + Math.max(u, v);
+                        if (!edgeToTris.has(key)) edgeToTris.set(key, []);
+                        edgeToTris.get(key).push(ti);
+                    }
+                }
+                const ccList = tris.map(function (tri) {
+                    return weightedCircumcenter(
+                        points[tri[0]], points[tri[1]], points[tri[2]],
+                        weights[tri[0]], weights[tri[1]], weights[tri[2]]);
+                });
+                const segments = [];
+                edges.forEach(function (edgeKey) {
+                    const parts = edgeKey.split(',');
+                    const u = parseInt(parts[0], 10);
+                    const v = parseInt(parts[1], 10);
+                    const incident = edgeToTris.get(edgeKey) || [];
+                    if (incident.length === 2) {
+                        const c1 = ccList[incident[0]], c2 = ccList[incident[1]];
+                        if (c1 && c2) segments.push([c1, c2]);
+                    } else if (incident.length === 1) {
+                        const cc = ccList[incident[0]];
+                        if (!cc) return;
+                        const p1 = points[u], p2 = points[v];
+                        let perpX = -(p2.y - p1.y);
+                        let perpY = (p2.x - p1.x);
+                        const plen = Math.hypot(perpX, perpY);
+                        if (plen < 1e-10) return;
+                        perpX /= plen; perpY /= plen;
+                        const tri = tris[incident[0]];
+                        let other = tri[0];
+                        for (let a = 0; a < 3; a++) {
+                            if (tri[a] !== u && tri[a] !== v) { other = tri[a]; break; }
+                        }
+                        const midX = (p1.x + p2.x) / 2, midY = (p1.y + p2.y) / 2;
+                        if (perpX * (points[other].x - midX) +
+                            perpY * (points[other].y - midY) > 0) {
+                            perpX = -perpX; perpY = -perpY;
+                        }
+                        segments.push([
+                            cc,
+                            { x: cc.x + perpX * 200, y: cc.y + perpY * 200 },
+                        ]);
+                    }
+                });
+                return segments;
+            }
+
+            // Direct port of clip_segments_to_sphere_union in method_figures.py:537-567.
+            // Returns an array of { pa, pb, inside } where `inside` is true for segments
+            // lying inside the union of circles (centres + radii).
+            function splitSegmentsByUnion(segments, centers, radii) {
+                const out = [];
+                for (let s = 0; s < segments.length; s++) {
+                    const s1 = segments[s][0], s2 = segments[s][1];
+                    const dx = s2.x - s1.x, dy = s2.y - s1.y;
+                    if (Math.hypot(dx, dy) < 1e-10) continue;
+                    const bps = [0, 1];
+                    for (let i = 0; i < centers.length; i++) {
+                        const ts = lineCircleIntersectT(
+                            s1, { x: dx, y: dy }, centers[i], radii[i]);
+                        for (let j = 0; j < ts.length; j++) {
+                            const t = ts[j];
+                            if (t > 0 && t < 1) bps.push(t);
+                        }
+                    }
+                    bps.sort(function (a, b) { return a - b; });
+                    for (let i = 0; i < bps.length - 1; i++) {
+                        const ta = bps[i], tb = bps[i + 1];
+                        if (tb - ta < 1e-6) continue;
+                        const tm = (ta + tb) / 2;
+                        const mx = s1.x + tm * dx;
+                        const my = s1.y + tm * dy;
+                        let inside = false;
+                        for (let j = 0; j < centers.length; j++) {
+                            if (Math.hypot(mx - centers[j].x, my - centers[j].y) <= radii[j]) {
+                                inside = true; break;
+                            }
+                        }
+                        out.push({
+                            pa: { x: s1.x + ta * dx, y: s1.y + ta * dy },
+                            pb: { x: s1.x + tb * dx, y: s1.y + tb * dy },
+                            inside: inside,
+                        });
+                    }
+                }
+                return out;
+            }
+
+            // -------- cell polygons via half-plane intersection --------
+            // For site i with weight w_i and every other site j (weight w_j), the
+            // cell is { p : |p - p_i|^2 - w_i <= |p - p_j|^2 - w_j }, which is a
+            // half-plane  a*x + b*y <= c  with:
+            //     a = p_j.x - p_i.x,  b = p_j.y - p_i.y,
+            //     c = (|p_j|^2 - w_j - |p_i|^2 + w_i) / 2.
+            function clipPolygonHalfPlane(poly, a, b, c) {
+                const out = [];
+                const n = poly.length;
+                if (n === 0) return out;
+                for (let i = 0; i < n; i++) {
+                    const curr = poly[i];
+                    const prev = poly[(i - 1 + n) % n];
+                    const currVal = a * curr.x + b * curr.y - c;
+                    const prevVal = a * prev.x + b * prev.y - c;
+                    const currIn = currVal <= OVERLAP_EPS;
+                    const prevIn = prevVal <= OVERLAP_EPS;
+                    if (currIn) {
+                        if (!prevIn) {
+                            const t = prevVal / (prevVal - currVal);
+                            out.push({
+                                x: prev.x + t * (curr.x - prev.x),
+                                y: prev.y + t * (curr.y - prev.y),
+                            });
+                        }
+                        out.push({ x: curr.x, y: curr.y });
+                    } else if (prevIn) {
+                        const t = prevVal / (prevVal - currVal);
+                        out.push({
+                            x: prev.x + t * (curr.x - prev.x),
+                            y: prev.y + t * (curr.y - prev.y),
+                        });
+                    }
+                }
+                return out;
+            }
+
+            function computeCellPolygons(points, weights, rect) {
+                const n = points.length;
+                const startPoly = [
+                    { x: rect.x0, y: rect.y0 },
+                    { x: rect.x1, y: rect.y0 },
+                    { x: rect.x1, y: rect.y1 },
+                    { x: rect.x0, y: rect.y1 },
+                ];
+                const out = new Array(n);
+                for (let i = 0; i < n; i++) {
+                    let poly = startPoly.slice();
+                    const pi = points[i], wi = weights[i];
+                    for (let j = 0; j < n && poly.length > 0; j++) {
+                        if (j === i) continue;
+                        const pj = points[j], wj = weights[j];
+                        const a = pj.x - pi.x;
+                        const b = pj.y - pi.y;
+                        const c = (pj.x * pj.x + pj.y * pj.y - wj
+                                 - pi.x * pi.x - pi.y * pi.y + wi) / 2;
+                        poly = clipPolygonHalfPlane(poly, a, b, c);
+                    }
+                    out[i] = poly;
+                }
+                return out;
+            }
+
+            function polygonToPointsAttr(poly) {
+                if (!poly || poly.length === 0) return '';
+                const parts = [];
+                for (let i = 0; i < poly.length; i++) {
+                    parts.push(poly[i].x.toFixed(4) + ',' + poly[i].y.toFixed(4));
+                }
+                return parts.join(' ');
+            }
+
+            // -------- geometry bundle (recomputed every render) --------
+
+            let geomSeq = 0;
+            function computeGeometry(state) {
+                geomSeq += 1;
+                const pts = state.sites;
+                const n = pts.length;
+                const w0 = new Array(n).fill(0);
+                const wr = state.radii.map(function (r) { return r * r; });
+
+                const vor = computeTriangulation(pts, w0);
+                const pow = computeTriangulation(pts, wr);
+
+                const voronoiSegs = computeDiagramEdges(pts, vor.tris, vor.edges, w0);
+                const powerSegs = computeDiagramEdges(pts, pow.tris, pow.edges, wr);
+                const powerSegsSplit =
+                    splitSegmentsByUnion(powerSegs, pts, state.radii);
+
+                const voronoiCells = computeCellPolygons(pts, w0, PANEL_RECT);
+                const powerCells = computeCellPolygons(pts, wr, PANEL_RECT);
+
+                // Alpha-complex: regular-triangulation edges whose two spheres overlap.
+                // Cech complex:  every pair of overlapping spheres (superset of alpha).
+                const alphaEdges = new Set();
+                pow.edges.forEach(function (key) {
+                    const parts = key.split(',');
+                    const u = parseInt(parts[0], 10), v = parseInt(parts[1], 10);
+                    const d = Math.hypot(pts[u].x - pts[v].x, pts[u].y - pts[v].y);
+                    if (state.radii[u] + state.radii[v] > d + OVERLAP_EPS) {
+                        alphaEdges.add(key);
+                    }
+                });
+                const cechEdges = new Set();
+                for (let i = 0; i < n; i++) {
+                    for (let j = i + 1; j < n; j++) {
+                        const d = Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y);
+                        if (state.radii[i] + state.radii[j] > d + OVERLAP_EPS) {
+                            cechEdges.add(i + ',' + j);
+                        }
+                    }
+                }
+                const cechOnly = [];
+                cechEdges.forEach(function (key) {
+                    if (!alphaEdges.has(key)) cechOnly.push(key);
+                });
+
+                return {
+                    seq: geomSeq,
+                    pts: pts,
+                    radii: state.radii.slice(),
+                    voronoiSegs: voronoiSegs,
+                    powerSegs: powerSegs,
+                    powerSegsSplit: powerSegsSplit,
+                    voronoiCells: voronoiCells,
+                    powerCells: powerCells,
+                    delTris: vor.tris,
+                    delEdges: vor.edges,
+                    regTris: pow.tris,
+                    regEdges: pow.edges,
+                    alphaEdges: alphaEdges,
+                    cechOnly: cechOnly,
+                };
+            }
+
+            // -------- rendering --------
+
+            function uidFor(svg, suffix) {
+                let id = svg.dataset.uid;
+                if (!id) {
+                    id = 'ipn-' + Math.random().toString(36).slice(2, 9);
+                    svg.dataset.uid = id;
+                }
+                return id + '-' + suffix;
+            }
+
+            // Kinds fall into two families that share their dual/primal relationship:
+            //   voronoi  <->  delaunay    (unweighted cells / triangulation)
+            //   power    <->  regular     (weighted cells / regular triangulation)
+            //   bounded  <->  alpha       (bounded cells / alpha (+ Cech) complex)
+            // The "primal" kinds render the diagram faded in the background and the
+            // triangulation / complex in the foreground; the "dual" kinds do the
+            // opposite.
+            const PRIMAL_KINDS = { delaunay: 1, regular: 1, alpha: 1 };
+            const SPHERE_KINDS = { power: 1, bounded: 1, alpha: 1 };
+
+            function renderPanel(svg, geom) {
+                const kind = svg.dataset.kind;
+                while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+                const pts = geom.pts;
+                const radii = geom.radii;
+                const n = pts.length;
+                const isPrimal = !!PRIMAL_KINDS[kind];
+
+                // Determine which dual-diagram machinery to use as background / fill.
+                const dualKind =
+                    (kind === 'voronoi' || kind === 'delaunay') ? 'voronoi'
+                    : (kind === 'power' || kind === 'regular') ? 'power'
+                    : 'bounded';
+                const cells = (dualKind === 'voronoi')
+                    ? geom.voronoiCells : geom.powerCells;
+
+                const cellClass = isPrimal ? 'cell-faded' : 'cell';
+                const faceClass = isPrimal ? 'cell-face-faded' : 'cell-face';
+                const ghostClass = isPrimal ? 'ghost-face-faded' : 'ghost-face';
+                const sphereClass = isPrimal ? 'sphere-faded' : 'sphere';
+
+                // <defs> for clip paths and gradients.
+                const defs = el('defs');
+                // Radial gradient for the pulsing site halos: solid white at
+                // the centre of each circle, fading to fully transparent at
+                // the edge so the pulse blooms outward without a hard rim.
+                const pulseGradId = uidFor(svg, 'site-pulse-grad');
+                const pulseGrad = el('radialGradient', {
+                    id: pulseGradId,
+                    cx: '50%', cy: '50%', r: '50%',
+                    fx: '50%', fy: '50%',
+                });
+                pulseGrad.appendChild(el('stop', {
+                    offset: '0%', 'stop-color': '#ffffff', 'stop-opacity': '1',
+                }));
+                pulseGrad.appendChild(el('stop', {
+                    offset: '60%', 'stop-color': '#ffffff', 'stop-opacity': '0.6',
+                }));
+                pulseGrad.appendChild(el('stop', {
+                    offset: '100%', 'stop-color': '#ffffff', 'stop-opacity': '0',
+                }));
+                defs.appendChild(pulseGrad);
+                let sphereUnionId = null;
+                if (dualKind === 'bounded') {
+                    sphereUnionId = uidFor(svg, 'sphere-union');
+                    const clip = el('clipPath', { id: sphereUnionId });
+                    for (let i = 0; i < n; i++) {
+                        clip.appendChild(el('circle', {
+                            cx: pts[i].x, cy: pts[i].y, r: radii[i],
+                        }));
+                    }
+                    defs.appendChild(clip);
+                    for (let i = 0; i < n; i++) {
+                        const cellId = uidFor(svg, 'cell-' + i);
+                        const clipCell = el('clipPath', { id: cellId });
+                        if (cells[i] && cells[i].length >= 3) {
+                            clipCell.appendChild(el('polygon', {
+                                points: polygonToPointsAttr(cells[i]),
+                            }));
+                        }
+                        defs.appendChild(clipCell);
+                    }
+                }
+                svg.appendChild(defs);
+
+                // Layer 1: filled cells (possibly clipped by sphere union).
+                const cellGroup = el('g', {});
+                if (dualKind === 'bounded' && sphereUnionId) {
+                    cellGroup.setAttribute('clip-path',
+                        'url(#' + sphereUnionId + ')');
+                }
+                for (let i = 0; i < n; i++) {
+                    if (!cells[i] || cells[i].length < 3) continue;
+                    cellGroup.appendChild(el('polygon', {
+                        'class': cellClass,
+                        fill: CELL_COLORS[i % CELL_COLORS.length],
+                        points: polygonToPointsAttr(cells[i]),
+                    }));
+                }
+                svg.appendChild(cellGroup);
+
+                // Layer 2: dual diagram edges.
+                if (dualKind === 'voronoi') {
+                    for (let i = 0; i < geom.voronoiSegs.length; i++) {
+                        const s = geom.voronoiSegs[i];
+                        const clipped = clipSegmentToRect(s[0], s[1], PANEL_RECT);
+                        if (!clipped) continue;
+                        svg.appendChild(el('line', {
+                            'class': faceClass,
+                            x1: clipped[0].x, y1: clipped[0].y,
+                            x2: clipped[1].x, y2: clipped[1].y,
+                        }));
+                    }
+                } else if (dualKind === 'power') {
+                    for (let i = 0; i < geom.powerSegs.length; i++) {
+                        const s = geom.powerSegs[i];
+                        const clipped = clipSegmentToRect(s[0], s[1], PANEL_RECT);
+                        if (!clipped) continue;
+                        svg.appendChild(el('line', {
+                            'class': faceClass,
+                            x1: clipped[0].x, y1: clipped[0].y,
+                            x2: clipped[1].x, y2: clipped[1].y,
+                        }));
+                    }
+                } else {
+                    // dualKind === 'bounded'
+                    for (let i = 0; i < geom.powerSegsSplit.length; i++) {
+                        const s = geom.powerSegsSplit[i];
+                        if (s.inside) continue;
+                        const clipped = clipSegmentToRect(s.pa, s.pb, PANEL_RECT);
+                        if (!clipped) continue;
+                        svg.appendChild(el('line', {
+                            'class': ghostClass,
+                            x1: clipped[0].x, y1: clipped[0].y,
+                            x2: clipped[1].x, y2: clipped[1].y,
+                        }));
+                    }
+                    for (let i = 0; i < geom.powerSegsSplit.length; i++) {
+                        const s = geom.powerSegsSplit[i];
+                        if (!s.inside) continue;
+                        const clipped = clipSegmentToRect(s.pa, s.pb, PANEL_RECT);
+                        if (!clipped) continue;
+                        svg.appendChild(el('line', {
+                            'class': faceClass,
+                            x1: clipped[0].x, y1: clipped[0].y,
+                            x2: clipped[1].x, y2: clipped[1].y,
+                        }));
+                    }
+                }
+
+                // Layer 3: sphere outlines.
+                if (dualKind === 'power' && kind === 'power') {
+                    for (let i = 0; i < n; i++) {
+                        svg.appendChild(el('circle', {
+                            'class': sphereClass,
+                            cx: pts[i].x, cy: pts[i].y, r: radii[i],
+                        }));
+                    }
+                } else if (dualKind === 'bounded') {
+                    for (let i = 0; i < n; i++) {
+                        svg.appendChild(el('circle', {
+                            'class': sphereClass,
+                            cx: pts[i].x, cy: pts[i].y, r: radii[i],
+                            'clip-path': 'url(#' + uidFor(svg, 'cell-' + i) + ')',
+                        }));
+                    }
+                }
+
+                // Layer 4: primal edges (triangulation / complex).
+                if (isPrimal) {
+                    if (kind === 'alpha') {
+                        // Cech-only edges (not in alpha) drawn first in green.
+                        for (let i = 0; i < geom.cechOnly.length; i++) {
+                            const parts = geom.cechOnly[i].split(',');
+                            const u = parseInt(parts[0], 10);
+                            const v = parseInt(parts[1], 10);
+                            svg.appendChild(el('line', {
+                                'class': 'cech-edge',
+                                x1: pts[u].x, y1: pts[u].y,
+                                x2: pts[v].x, y2: pts[v].y,
+                            }));
+                        }
+                    }
+                    const primalEdges =
+                        kind === 'delaunay' ? geom.delEdges
+                        : kind === 'regular' ? geom.regEdges
+                        : geom.alphaEdges;
+                    primalEdges.forEach(function (key) {
+                        const parts = key.split(',');
+                        const u = parseInt(parts[0], 10);
+                        const v = parseInt(parts[1], 10);
+                        svg.appendChild(el('line', {
+                            'class': 'primal-edge',
+                            x1: pts[u].x, y1: pts[u].y,
+                            x2: pts[v].x, y2: pts[v].y,
+                        }));
+                    });
+                }
+
+                // Layer 5: invisible hit bands along each sphere boundary so the
+                // user can grab the sphere edge directly to resize it.
+                if (SPHERE_KINDS[kind]) {
+                    for (let i = 0; i < n; i++) {
+                        const attrs = {
+                            'class': 'sphere-handle',
+                            'data-role': 'handle',
+                            'data-index': i,
+                            cx: pts[i].x, cy: pts[i].y, r: radii[i],
+                        };
+                        if (dualKind === 'bounded') {
+                            attrs['clip-path'] =
+                                'url(#' + uidFor(svg, 'cell-' + i) + ')';
+                        }
+                        svg.appendChild(el('circle', attrs));
+                    }
+                }
+
+                // Layer 6: pulsing halo + visible site markers + larger
+                // transparent hit halos. Pulse goes underneath the dot; the
+                // hit halo stays on top so it always wins pointer events.
+                for (let i = 0; i < n; i++) {
+                    svg.appendChild(el('circle', {
+                        'class': 'site-pulse',
+                        fill: 'url(#' + pulseGradId + ')',
+                        cx: pts[i].x, cy: pts[i].y, r: SITE_PULSE_R,
+                    }));
+                    svg.appendChild(el('circle', {
+                        'class': 'site',
+                        cx: pts[i].x, cy: pts[i].y, r: SITE_R,
+                    }));
+                    svg.appendChild(el('circle', {
+                        'class': 'site-hit',
+                        'data-role': 'site',
+                        'data-index': i,
+                        cx: pts[i].x, cy: pts[i].y, r: SITE_HIT_R,
+                    }));
+                }
+            }
+
+            function renderAll() {
+                const geom = computeGeometry(state);
+                for (let i = 0; i < allPanels.length; i++) {
+                    renderPanel(allPanels[i], geom);
+                }
+            }
+
+            // -------- interaction --------
+
+            function clientToSvg(svg, clientX, clientY) {
+                const pt = svg.createSVGPoint();
+                pt.x = clientX;
+                pt.y = clientY;
+                const ctm = svg.getScreenCTM();
+                if (!ctm) return { x: 0, y: 0 };
+                return pt.matrixTransform(ctm.inverse());
+            }
+
+            function clampSite(state, idx, pt) {
+                let x = Math.max(PANEL_RECT.x0 + SITE_MARGIN,
+                                 Math.min(PANEL_RECT.x1 - SITE_MARGIN, pt.x));
+                let y = Math.max(PANEL_RECT.y0 + SITE_MARGIN,
+                                 Math.min(PANEL_RECT.y1 - SITE_MARGIN, pt.y));
+                // Nudge away from every other site so they can't coincide.
+                for (let iter = 0; iter < 4; iter++) {
+                    let moved = false;
+                    for (let j = 0; j < state.sites.length; j++) {
+                        if (j === idx) continue;
+                        const other = state.sites[j];
+                        const dx = x - other.x, dy = y - other.y;
+                        const d = Math.hypot(dx, dy);
+                        if (d < MIN_SITE_SEPARATION) {
+                            if (d < 1e-6) {
+                                x = other.x + MIN_SITE_SEPARATION;
+                                y = other.y;
+                            } else {
+                                x = other.x + (dx / d) * MIN_SITE_SEPARATION;
+                                y = other.y + (dy / d) * MIN_SITE_SEPARATION;
+                            }
+                            moved = true;
+                        }
+                    }
+                    if (!moved) break;
+                }
+                return { x: x, y: y };
+            }
+
+            function init() {
+                const figs = document.querySelectorAll('.interactive-figure');
+                if (figs.length === 0) return;
+
+                allPanels = [];
+                for (let f = 0; f < figs.length; f++) {
+                    const panels = figs[f].querySelectorAll('.interactive-panel');
+                    for (let p = 0; p < panels.length; p++) allPanels.push(panels[p]);
+                }
+
+                let drag = null;
+                function onPointerDown(e) {
+                    const target = e.target;
+                    const role = target.dataset ? target.dataset.role : null;
+                    if (!role) return;
+                    const svg = target.ownerSVGElement;
+                    if (!svg) return;
+                    const idxStr = target.dataset.index;
+                    const idx = idxStr === undefined ? -1 : parseInt(idxStr, 10);
+                    drag = { svg: svg, role: role, index: idx };
+                    try { target.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+                    e.preventDefault();
+                }
+
+                function onPointerMove(e) {
+                    if (!drag) return;
+                    const pt = clientToSvg(drag.svg, e.clientX, e.clientY);
+                    if (drag.role === 'site') {
+                        if (drag.index >= 0 && drag.index < state.sites.length) {
+                            state.sites[drag.index] = clampSite(state, drag.index, pt);
+                        }
+                    } else if (drag.role === 'handle') {
+                        if (drag.index >= 0 && drag.index < state.radii.length) {
+                            const c = state.sites[drag.index];
+                            const r = Math.hypot(pt.x - c.x, pt.y - c.y);
+                            state.radii[drag.index] = Math.max(MIN_RADIUS, r);
+                        }
+                    }
+                    renderAll();
+                }
+                function endDrag() { drag = null; }
+
+                function resetState() {
+                    state.sites = INITIAL_SITES.map(function (p) {
+                        return { x: p.x, y: p.y };
+                    });
+                    state.radii = INITIAL_RADII.slice();
+                    renderAll();
+                }
+
+                for (let f = 0; f < figs.length; f++) {
+                    const fig = figs[f];
+                    fig.addEventListener('pointerdown', onPointerDown);
+                    fig.addEventListener('pointermove', onPointerMove);
+                    fig.addEventListener('pointerup', endDrag);
+                    fig.addEventListener('pointercancel', endDrag);
+                    fig.addEventListener('pointerleave', endDrag);
+                    const resetBtn = fig.querySelector('.reset-btn');
+                    if (resetBtn) resetBtn.addEventListener('click', resetState);
+                }
+
+                renderAll();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+
+</body>
+
+</html>

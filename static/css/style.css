@@ -1,0 +1,1025 @@
+/* ---- Smooth in-page scrolling ----
+   `scroll-padding-top` keeps the destination heading clear of any future
+   fixed header and gives breathing room for hash navigation. */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* Sections themselves get a comfortable top margin when targeted via #id. */
+section[id] {
+    scroll-margin-top: 24px;
+}
+
+/* ---- Reading progress bar (fixed at the very top of the viewport) ---- */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: transparent;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.scroll-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #4a6fff 0%, #d9479e 100%);
+    border-radius: 0 2px 2px 0;
+    transition: width 80ms linear;
+    box-shadow: 0 0 6px rgba(74, 111, 255, 0.45);
+}
+
+/* ---- Hover-revealed anchor links next to section headings ----
+   The "#" marker only appears when the user hovers (or focuses) the
+   heading, so the page stays clean while still letting people grab
+   permalinks to specific sections. Positioned absolutely so it can sit
+   beside a centred title without disturbing the alignment. */
+h2.title.is-3 {
+    position: relative;
+    display: inline-block;
+}
+
+.heading-anchor {
+    position: absolute;
+    right: calc(100% + 0.45em);
+    top: 50%;
+    transform: translateY(-50%) translateX(4px);
+    color: #4a6fff;
+    opacity: 0;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.85em;
+    transition: opacity 0.18s ease, color 0.18s ease, transform 0.18s ease;
+    user-select: none;
+}
+
+h2.title.is-3:hover .heading-anchor,
+h2.title.is-3:focus-within .heading-anchor,
+.heading-anchor:focus,
+.heading-anchor:hover {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+    color: #2547d0;
+    outline: none;
+}
+
+/* On narrow screens the anchor would push off the left edge; tuck it
+   under the title instead. */
+@media (max-width: 640px) {
+    .heading-anchor {
+        position: static;
+        display: block;
+        margin-bottom: 0.1em;
+        transform: none;
+        font-size: 0.7em;
+    }
+
+    h2.title.is-3:hover .heading-anchor,
+    h2.title.is-3:focus-within .heading-anchor {
+        transform: none;
+    }
+}
+
+/* ---- BibTeX copy button ---- */
+.bibtex-wrapper {
+    position: relative;
+}
+
+.bibtex-copy-btn {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.55rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.82rem;
+    font-family: inherit;
+    line-height: 1;
+    color: #444;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+}
+
+.bibtex-copy-btn:hover {
+    background: #ffffff;
+    color: #1f2933;
+    border-color: rgba(0, 0, 0, 0.25);
+}
+
+.bibtex-copy-btn:active {
+    transform: translateY(1px);
+}
+
+.bibtex-copy-btn:focus-visible {
+    outline: 2px solid #4a6fff;
+    outline-offset: 2px;
+}
+
+.bibtex-copy-btn.is-success {
+    background: #e7f8ee;
+    border-color: rgba(34, 153, 84, 0.55);
+    color: #1f7a4a;
+}
+
+.bibtex-copy-btn.is-error {
+    background: #fde7e3;
+    border-color: rgba(192, 57, 43, 0.55);
+    color: #a93226;
+}
+
+/* ---- Active nav-bar section link ---- */
+.navbar-item.nav-section-link {
+    transition: color 0.18s ease, background 0.18s ease;
+}
+
+.navbar-item.nav-section-link.is-active {
+    color: #2547d0;
+    background: rgba(74, 111, 255, 0.08);
+    font-weight: 500;
+}
+
+/* ---- Floating side mini-TOC ----
+   Vertical stack of dots + labels pinned to the right edge. Hidden by
+   default and shown via .is-visible once the user has scrolled past
+   the hero. Hidden entirely on screens that don't have room for it. */
+.side-toc {
+    position: fixed;
+    top: 50%;
+    right: 0.9rem;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.side-toc.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.side-toc a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    text-decoration: none;
+    color: #555;
+    font-size: 0.78rem;
+    line-height: 1;
+}
+
+.side-toc-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.22);
+    flex-shrink: 0;
+    transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.side-toc-label {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    opacity: 0;
+    transform: translateX(6px);
+    transition: opacity 0.18s ease, transform 0.18s ease, color 0.18s ease;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* Reveal labels on hover of the whole TOC and always for the active entry. */
+.side-toc:hover .side-toc-label,
+.side-toc a.is-active .side-toc-label,
+.side-toc a:focus-visible .side-toc-label {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.side-toc a:hover .side-toc-dot,
+.side-toc a:focus-visible .side-toc-dot {
+    background: #2547d0;
+}
+
+.side-toc a.is-active .side-toc-dot {
+    background: #4a6fff;
+    transform: scale(1.4);
+    box-shadow: 0 0 0 4px rgba(74, 111, 255, 0.15);
+}
+
+.side-toc a.is-active .side-toc-label {
+    color: #2547d0;
+    font-weight: 500;
+}
+
+/* Hide the side TOC on screens too narrow to fit it next to the page
+   without overlapping content. */
+@media (max-width: 1216px) {
+    .side-toc {
+        display: none;
+    }
+}
+
+/* ---- Back-to-top floating button ---- */
+.back-to-top {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    background: #1f2933;
+    color: #ffffff;
+    border: none;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease, background 0.18s ease;
+    z-index: 60;
+}
+
+.back-to-top.is-visible {
+    opacity: 0.92;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.back-to-top:hover {
+    background: #4a6fff;
+    opacity: 1;
+}
+
+.back-to-top:focus-visible {
+    outline: 2px solid #4a6fff;
+    outline-offset: 3px;
+}
+
+.placeholder-video {
+    width: 100%;
+    background-color: #e0e0e0;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-family: monospace;
+    border-radius: 8px;
+}
+
+.placeholder-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    border: 1px dashed #ccc;
+}
+
+/* FPS overlay: alternate between label and values with smooth crossfade */
+.fps-overlay-container {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.fps-overlay-block {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: max-content;
+    white-space: nowrap;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 0.9rem;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.fps-overlay-container .fps-values { opacity: 1; }
+.fps-overlay-container .fps-label  { opacity: 0; }
+.fps-overlay-container.show-label .fps-values { opacity: 0; }
+.fps-overlay-container.show-label .fps-label  { opacity: 1; }
+
+/* Logo-style title (replaces the text Power Foam with an image) */
+.publication-title-logo {
+    display: block;
+    margin: 0 auto;
+    max-width: 560px;
+    width: 70%;
+    height: auto;
+}
+
+.publication-subtitle {
+    font-weight: 400;
+    color: #363636;
+    margin-top: 0.75rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.publication-authors sup {
+    font-size: 0.75em;
+    margin-left: 1px;
+}
+
+.publication-affiliations {
+    color: #555;
+    margin-top: 0.4rem;
+    margin-bottom: 1.25rem;
+}
+
+.publication-affiliations .author-block {
+    margin: 0 0.35rem;
+}
+
+.publication-affiliations sup {
+    font-size: 0.75em;
+    margin-right: 1px;
+}
+
+.publication-equal-contribution {
+    color: #555;
+    margin-top: -0.4rem;
+    margin-bottom: 1.25rem;
+    font-style: italic;
+}
+
+.publication-warning {
+    display: inline-block;
+    margin-top: -0.6rem;
+    margin-bottom: 1.25rem;
+    padding: 0.4rem 0.9rem;
+    background: #fff3cd;
+    color: #8a5a00;
+    border: 1px solid #f0c36d;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.publication-equal-contribution sup {
+    font-size: 0.85em;
+    margin-right: 1px;
+    font-style: normal;
+}
+
+@media (max-width: 768px) {
+    .publication-title-logo { width: 85%; }
+    .publication-subtitle   { font-size: 1.4rem !important; }
+}
+
+/* Method-section figure */
+.method-figure {
+    margin: 0 0 2rem 0;
+    text-align: center;
+}
+
+.method-figure:last-child {
+    margin-bottom: 0;
+}
+
+.method-figure-pair {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: 1rem;
+    margin: 0 0 2rem 0;
+}
+
+.method-figure-pair:last-child {
+    margin-bottom: 0;
+}
+
+.method-figure-pair img,
+.method-figure-pair video {
+    flex: 1 1 0;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    /* Force every panel to the same square slot so a row of media with
+       mixed source aspect ratios still lines up. object-fit: contain keeps
+       each clip undistorted; the black background fills any letterbox gap. */
+    aspect-ratio: 1 / 1;
+    height: auto;
+    object-fit: contain;
+    border-radius: 6px;
+    display: block;
+    background: transparent;
+}
+
+@media (max-width: 768px) {
+    .method-figure-pair {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .method-figure-pair img,
+    .method-figure-pair video {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+}
+
+/* ---- Zoom callout: heatmap on the left, marker around a single cell,
+   two rays fanning out to a square panel on the right with the dipole
+   sphere video. The whole thing is one SVG so the marker / rays / video
+   all stay in lockstep at every screen size. */
+.zoom-figure {
+    margin: 0 0 2rem 0;
+}
+
+.zoom-figure:last-child {
+    margin-bottom: 0;
+}
+
+.zoom-callout {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* The figure ships two SVGs (a wide desktop layout and a stacked mobile
+   layout); only the appropriate one is shown at any given breakpoint. */
+.zoom-callout-mobile {
+    display: none;
+}
+
+.zoom-callout .zoom-marker {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 8;
+    paint-order: stroke;
+    filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.8));
+}
+
+.zoom-callout .zoom-rays line {
+    stroke: #ffffff;
+    stroke-width: 5;
+    stroke-dasharray: 18 12;
+    stroke-linecap: round;
+    opacity: 0.95;
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.7));
+}
+
+.zoom-callout .zoom-target-frame {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 8;
+    filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
+}
+
+/* Interactive method figure (radical axis vs equidistant plane) */
+.interactive-figure {
+    margin: 0 0 2rem 0;
+}
+
+.interactive-figure:last-child {
+    margin-bottom: 0;
+}
+
+.interactive-panels {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    align-items: stretch;
+}
+
+.interactive-panel {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    display: block;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+}
+
+.interactive-panel .cell {
+    stroke: none;
+    fill-opacity: 0.45;
+}
+
+.interactive-panel .sphere {
+    fill: none;
+    stroke: rgb(220, 50, 50);
+    stroke-width: 0.25;
+    pointer-events: none;
+}
+
+.interactive-panel .sphere-faded {
+    fill: none;
+    stroke: rgb(238, 152, 152);
+    stroke-width: 0.25;
+    pointer-events: none;
+}
+
+.interactive-panel .cell-face {
+    fill: none;
+    stroke: rgb(60, 60, 60);
+    stroke-width: 0.3;
+    stroke-linecap: round;
+}
+
+.interactive-panel .ghost-face {
+    fill: none;
+    stroke: rgb(170, 170, 170);
+    stroke-width: 0.3;
+    stroke-dasharray: 0.9 0.9;
+    stroke-linecap: butt;
+}
+
+.interactive-panel .cell-faded {
+    stroke: none;
+    fill-opacity: 0.22;
+}
+
+.interactive-panel .cell-face-faded {
+    fill: none;
+    stroke: rgb(170, 170, 170);
+    stroke-width: 0.25;
+    stroke-linecap: round;
+}
+
+.interactive-panel .ghost-face-faded {
+    fill: none;
+    stroke: rgb(205, 205, 205);
+    stroke-width: 0.25;
+    stroke-dasharray: 0.9 0.9;
+    stroke-linecap: butt;
+}
+
+.interactive-panel .primal-edge {
+    fill: none;
+    stroke: rgb(50, 80, 220);
+    stroke-width: 0.4;
+    stroke-linecap: round;
+}
+
+.interactive-panel .cech-edge {
+    fill: none;
+    stroke: rgb(40, 150, 60);
+    stroke-width: 0.4;
+    stroke-linecap: round;
+}
+
+.interactive-panel .site {
+    fill: rgb(220, 50, 50);
+    stroke: none;
+    pointer-events: none;
+}
+
+/* Soft white halo that sits under each red dot and pulses to draw the
+   eye to where the interactive sites are. The fill is a radial gradient
+   defined per-panel in the SVG defs, so opacity falls off toward the
+   outer edge instead of having a hard rim. Pointer-events: none so it
+   never absorbs hover/clicks meant for the site or sphere edge. */
+.interactive-panel .site-pulse {
+    stroke: none;
+    pointer-events: none;
+    opacity: 0;
+    animation: site-pulse 2s ease-in-out infinite;
+}
+
+@keyframes site-pulse {
+    0%   { opacity: 0; }
+    50%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .interactive-panel .site-pulse { animation: none; }
+}
+
+/* Invisible halo around each site. Catches pointer events from ~5x the
+   visible-dot radius so the grab cursor (and drag) engage when the user
+   is near the site, not only when they're exactly on it. */
+.interactive-panel .site-hit {
+    fill: transparent;
+    stroke: none;
+    cursor: grab;
+}
+
+.interactive-panel .site-hit:active {
+    cursor: grabbing;
+}
+
+/* Invisible hit band along each sphere boundary. Widens the grab area
+   without altering the visible stroke. */
+.interactive-panel .sphere-handle {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 3.5;
+    pointer-events: stroke;
+    cursor: ew-resize;
+}
+
+.interactive-panel .sphere-handle:active {
+    cursor: grabbing;
+}
+
+.interactive-panel-label {
+    font-size: 0.85rem;
+    color: #666;
+    text-align: center;
+    margin-top: 0.3rem;
+}
+
+.interactive-panel-wrap {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.interactive-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.9rem;
+    margin-top: 0.9rem;
+    font-size: 1.05rem;
+    color: #333;
+}
+
+.interactive-controls .interactive-badge {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    margin-right: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: rgb(220, 50, 50);
+    border-radius: 999px;
+    vertical-align: middle;
+}
+
+.interactive-controls .reset-btn {
+    padding: 0.4rem 1.1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #333;
+}
+
+.interactive-controls .reset-btn:hover {
+    background: #ebebeb;
+}
+
+@media (max-width: 768px) {
+    .interactive-panels {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+.method-figure img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    display: block;
+    margin: 0 auto;
+}
+
+.method-caption {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #4a4a4a;
+    text-align: justify;
+    text-align-last: center;
+}
+
+.method-caption b {
+    color: #222;
+}
+
+/* Nerfies-style BibTeX block */
+pre.bibtex-block {
+    background-color: #f5f5f5;
+    padding: 1rem 1.25rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.95rem;
+    color: #222;
+}
+
+.footer {
+    padding: 3rem 1.5rem;
+}
+
+/* Narrow every section's content to the teaser width.
+   Bulma's .column pattern (-0.75rem margin on .columns + 0.75rem
+   padding on .column) cancels out, so adding padding here shrinks
+   the inner content width uniformly across all sections. */
+.container.is-max-desktop {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* ===== Visual Comparison carousel =====
+   The carousel-content takes the full width of its parent column.
+   The .comparison-nav is absolutely positioned in the left margin,
+   OUTSIDE the column, so it doesn't shrink the video area. */
+.comparison-carousel {
+    position: relative;
+    margin-top: 0.5rem;
+}
+
+.comparison-carousel-content {
+    width: 100%;
+}
+
+.comparison-nav {
+    position: absolute;
+    right: 100%;           /* sit flush-left of the content */
+    top: 50%;
+    transform: translateY(-50%);
+    margin-right: 1rem;    /* breathing room from the videos */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    user-select: none;
+    z-index: 2;
+}
+
+.comparison-nav-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #d0d0d0;
+    background: #fff;
+    color: #363636;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: background-color 0.15s ease, color 0.15s ease,
+                border-color 0.15s ease, transform 0.1s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.comparison-nav-btn:hover {
+    background: #363636;
+    color: #fff;
+    border-color: #363636;
+}
+
+.comparison-nav-btn:active {
+    transform: scale(0.94);
+}
+
+.comparison-indicator {
+    min-width: 96px;
+    max-width: 120px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.comparison-scene-name {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #363636;
+}
+
+.comparison-counter {
+    display: block;
+    font-size: 0.85rem;
+    color: #777;
+    font-variant-numeric: tabular-nums;
+}
+
+.comparison-row {
+    display: none !important;
+}
+
+.comparison-row.is-active {
+    display: flex !important;
+}
+
+/* On narrow screens there is no margin to park the nav in, so fall
+   back to an in-flow horizontal bar above the video row. */
+@media (max-width: 768px) {
+    .comparison-nav {
+        position: static;
+        transform: none;
+        margin: 0 0 0.75rem 0;
+        flex-direction: row;
+        gap: 1.25rem;
+    }
+
+    .comparison-indicator {
+        min-width: 140px;
+        max-width: none;
+    }
+}
+
+/* On desktop/widescreen, clamp the container to ~80% of the viewport
+   so long lines of text don't span the entire window. Capped at
+   1600px so it doesn't grow too wide on ultra-wide monitors, and
+   only applied above 1024px so mobile/tablet layouts are untouched. */
+@media (min-width: 1024px) {
+    .container.is-max-desktop {
+        max-width: min(70vw, 1400px) !important;
+    }
+}
+
+/* ====================================================================
+   MOBILE LAYOUT (<= 768px)
+   Text keeps a small comfortable padding inside the container, but the
+   media-heavy blocks (3D comparison videos, dipole videos, interactive
+   panels) break out to the full viewport width and stack vertically so
+   each one fills the phone screen exactly.
+
+   The "breakout" trick: width: 100vw + margin-left/right: calc(50% - 50vw)
+   pulls the element out from the container's horizontal padding so it
+   aligns with the actual viewport edges, regardless of how deep it sits
+   in the layout (.section -> .container -> .columns -> .column -> ...).
+   ==================================================================== */
+@media (max-width: 768px) {
+    /* Prevent the viewport-width breakouts from triggering horizontal
+       scroll if any ancestor box happens to compute slightly wider. */
+    html, body {
+        overflow-x: hidden;
+    }
+
+    /* Tighten the container's text padding a bit for phones. */
+    .container.is-max-desktop {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* ---- Interactive method figures ----
+       Stack the three SVG panels and let each one span the viewport. */
+    .interactive-panels {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .interactive-panel-wrap {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        margin-bottom: 1rem;
+    }
+
+    .interactive-panel-wrap:last-child {
+        margin-bottom: 0;
+    }
+
+    .interactive-panel {
+        width: 100vw;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+
+    .interactive-panel-label {
+        margin-top: 0.5rem;
+        padding: 0 1rem;
+    }
+
+    /* ---- Dipole video triplet ----
+       Stack vertically; each video covers the screen width at its
+       native aspect ratio. */
+    .method-figure-pair {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 0;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+    }
+
+    .method-figure-pair img,
+    .method-figure-pair video {
+        flex: 0 0 auto;
+        width: 100vw;
+        max-width: 100vw;
+        aspect-ratio: auto;
+        height: auto;
+        object-fit: contain;
+        border-radius: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .method-figure-pair img:last-child,
+    .method-figure-pair video:last-child {
+        margin-bottom: 0;
+    }
+
+    /* ---- Zoom callout ---- (heatmap + dipole sphere zoom-in)
+       Break out to the full viewport width and switch from the wide
+       side-by-side layout to the stacked layout (heatmap on top,
+       dipole videos as a row below). */
+    .zoom-figure {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+    }
+
+    .zoom-callout-desktop {
+        display: none;
+    }
+
+    .zoom-callout-mobile {
+        display: block;
+    }
+
+    /* ---- Visual comparison carousel ----
+       Stack the three scene videos in a single column and let each video
+       cover the full screen width. The shared 3-up method header row no
+       longer makes sense once videos stack vertically, so hide it and
+       inject a per-video label above each stacked video instead. */
+    .comparison-carousel {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+    }
+
+    .comparison-carousel-content > .columns.has-text-centered {
+        display: none !important;
+    }
+
+    .comparison-row.is-active {
+        flex-direction: column !important;
+        width: 100vw !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .comparison-row .column {
+        padding: 0 !important;
+        margin-bottom: 0.75rem;
+    }
+
+    .comparison-row .column:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Per-video method label (replaces the shared header row above). */
+    .comparison-row.is-active .column::before {
+        display: block;
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #363636;
+        padding: 0.4rem 0 0.35rem 0;
+    }
+    .comparison-row.is-active .column:nth-child(1)::before { content: "3DGUT"; }
+    .comparison-row.is-active .column:nth-child(2)::before { content: "Radiant Foam"; }
+    .comparison-row.is-active .column:nth-child(3)::before { content: "Power Foam (Ours)"; }
+
+    .comparison-row .column video {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        border-radius: 0 !important;
+        display: block;
+    }
+
+    /* The FPS overlay wrapper is the direct child of .column. Make sure
+       it spans the full viewport too so the absolutely-positioned FPS
+       badge in its top-right corner lands on the video, not on a
+       narrower wrapper box. */
+    .comparison-row .column > div[style*="position: relative"] {
+        width: 100vw !important;
+    }
+}
