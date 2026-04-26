@@ -17,27 +17,6 @@ section[id] {
     scroll-margin-top: 24px;
 }
 
-/* ---- Reading progress bar (fixed at the very top of the viewport) ---- */
-.scroll-progress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: transparent;
-    z-index: 1000;
-    pointer-events: none;
-}
-
-.scroll-progress-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #4a6fff 0%, #d9479e 100%);
-    border-radius: 0 2px 2px 0;
-    transition: width 80ms linear;
-    box-shadow: 0 0 6px rgba(74, 111, 255, 0.45);
-}
-
 /* ---- Hover-revealed anchor links next to section headings ----
    The "#" marker only appears when the user hovers (or focuses) the
    heading, so the page stays clean while still letting people grab

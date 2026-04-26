@@ -44,9 +44,6 @@
 
 <body>
 
-    <!-- Reading-progress bar (filled by JS as the user scrolls). -->
-    <div class="scroll-progress" aria-hidden="true"><div class="scroll-progress-fill"></div></div>
-
     <!-- ============ TOP NAVBAR ============ -->
     <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
@@ -906,31 +903,6 @@
         if (typeof BeforeAfter !== 'undefined') {
             new BeforeAfter({ id: '#example1' });
         }
-
-        // ---- Reading progress bar -------------------------------------
-        // Width of the bar tracks scroll position from 0 to (scrollable
-        // height). Uses requestAnimationFrame to avoid layout thrashing.
-        (function () {
-            var fill = document.querySelector('.scroll-progress-fill');
-            if (!fill) return;
-            var ticking = false;
-            function update() {
-                var doc = document.documentElement;
-                var scrollTop = window.pageYOffset || doc.scrollTop;
-                var max = (doc.scrollHeight || doc.offsetHeight) - window.innerHeight;
-                var pct = max > 0 ? Math.min(100, (scrollTop / max) * 100) : 0;
-                fill.style.width = pct.toFixed(2) + '%';
-                ticking = false;
-            }
-            window.addEventListener('scroll', function () {
-                if (!ticking) {
-                    window.requestAnimationFrame(update);
-                    ticking = true;
-                }
-            }, { passive: true });
-            window.addEventListener('resize', update, { passive: true });
-            update();
-        })();
 
         // ---- Heading anchor links (deep-link helpers) -----------------
         // For every <section id="..."> with an <h2 class="title is-3">,
