@@ -19,14 +19,14 @@
    their own sizes (.title.is-3 etc.) so they're unaffected; paragraphs,
    list items, captions and other em/rem-based text scale up. */
 body {
-    font-size: 1.0625rem;   /* 17px @ default 16px root */
+    font-size: 1.125rem;    /* 18px @ default 16px root */
     line-height: 1.6;
 }
 
 .content p,
 .content li,
 figcaption {
-    font-size: 1.0625rem;
+    font-size: 1.125rem;
     line-height: 1.65;
 }
 
