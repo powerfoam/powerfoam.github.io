@@ -15,6 +15,21 @@
     font-display: swap;
 }
 
+/* Bump the body copy a touch above Bulma's 16px default. Headings use
+   their own sizes (.title.is-3 etc.) so they're unaffected; paragraphs,
+   list items, captions and other em/rem-based text scale up. */
+body {
+    font-size: 1.0625rem;   /* 17px @ default 16px root */
+    line-height: 1.6;
+}
+
+.content p,
+.content li,
+figcaption {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+}
+
 /* ---- Smooth in-page scrolling ----
    `scroll-padding-top` keeps the destination heading clear of any future
    fixed header and gives breathing room for hash navigation. */
