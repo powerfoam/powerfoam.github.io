@@ -94,7 +94,7 @@ def _annotate(ax, xy, text, name, offset, ha="center", va="bottom") -> None:
         textcoords="offset points",
         ha=ha,
         va=va,
-        fontsize=14,
+        fontsize=12,
         fontweight="bold" if _is_ours(name) else "normal",
         color=OURS_COLOR if _is_ours(name) else "black",
     )
@@ -222,6 +222,9 @@ def _category_label(ax, text, x, y, ha="center", va="center", rotation=0) -> Non
         fontsize=14,
         color="#334155",
         fontweight="bold",
+        # Note: 14pt bold renders heavier than the 12pt body labels below
+        # while staying smaller than the 18pt axis labels — same visual
+        # hierarchy as <h3> in the page (subsection title).
         rotation=rotation,
     )
 
@@ -232,16 +235,22 @@ def _category_label(ax, text, x, y, ha="center", va="center", rotation=0) -> Non
 
 
 def build_figure(out_path: Path) -> None:
+    # Sizes are tuned so the rasterised plot, when displayed inside the
+    # page's `.container.is-max-desktop` (~1000 px wide on desktop) maps
+    # to roughly the same on-screen pixel sizes as the surrounding HTML:
+    # body labels ≈ 18 px, headings/axis labels ≈ 28 px. The image is
+    # saved at dpi=600 (~5 px/pt at the typical 0.2x display scale), so
+    # body text needs ≈ 12 pt and headings ≈ 18 pt in matplotlib units.
     plt.rcParams.update({
         "font.family": ["Jost", "sans-serif"],
-        "font.size": 15,
+        "font.size": 12,
         "axes.labelcolor": "#1e293b",
-        "axes.labelsize": 16,
+        "axes.labelsize": 18,
         "xtick.color": "#334155",
         "ytick.color": "#334155",
-        "xtick.labelsize": 13,
-        "ytick.labelsize": 13,
-        "legend.fontsize": 13,
+        "xtick.labelsize": 11,
+        "ytick.labelsize": 11,
+        "legend.fontsize": 12,
         "text.antialiased": True,
         # Render mathtext (e.g. r"$\beta$-splat") with sans-serif glyphs so
         # the Greek letter blends in instead of looking like Computer Modern.
@@ -310,7 +319,7 @@ def build_figure(out_path: Path) -> None:
         y_lim=(y_min, y_max),
         line_x=0.42,
     )
-    ax_left.set_ylabel("Rasterization FPS", fontsize=19)
+    ax_left.set_ylabel("Rasterization FPS", fontsize=18)
     # Pull the y-axis title in closer (default sits near the figure edge),
     # but leave a small breathing margin past the data labels.
     ax_left.yaxis.set_label_coords(0.18, 0.5)
@@ -328,7 +337,7 @@ def build_figure(out_path: Path) -> None:
         default_above=False,
         line_y=0.2,
     )
-    ax_bottom.set_xlabel("Ray Tracing FPS", fontsize=19)
+    ax_bottom.set_xlabel("Ray Tracing FPS", fontsize=18)
     # Pull the x-axis title up so it sits just below the data labels rather
     # than at the bottom of the cropped figure. Axes coords: 0 = panel
     # bottom, 1 = panel top; data labels live near axes y≈0.5.
