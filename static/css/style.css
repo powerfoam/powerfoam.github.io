@@ -66,29 +66,21 @@ section[id] {
     scroll-margin-top: 24px;
 }
 
-/* ---- Foam-bubble fill on section headings ----
-   `static/images/foam-text-pattern.png` is a 1600x220 Voronoi-bubble
-   gradient (purple-blue -> pink-red) that matches the wordmark used in
-   the title image. We paint the heading text with that texture using
-   `background-clip: text`, which makes the headers read as the same
-   visual family as the title. The `text-fill-color` fallback chain
-   keeps the heading legible if the browser doesn't support
-   background-clip on text. */
+/* ---- Heatmap gradient fill on section headings ----
+   Purple-blue -> pink-red sweep that picks up the same colour palette
+   as the title wordmark, applied to the heading text via
+   `background-clip: text`. The `text-fill-color` fallback chain keeps
+   the heading legible if the browser doesn't support that property. */
 h2.title.is-3 {
     position: relative;
     display: inline-block;
-    background-image: url('../images/foam-text-pattern.png');
-    background-repeat: no-repeat;
-    background-size: 100% 130%;
-    background-position: center 10%;
+    background-image: linear-gradient(90deg, #8a6ad6 0%, #b56dc7 50%, #e25a96 100%);
     -webkit-background-clip: text;
             background-clip: text;
     -webkit-text-fill-color: transparent;
             text-fill-color: transparent;
     /* Fallback colour for browsers without background-clip:text. */
     color: #5e3a8a;
-    /* Slight letter spacing tightens the gradient look. */
-    letter-spacing: -0.005em;
 }
 
 /* ---- Hover-revealed anchor links next to section headings ----

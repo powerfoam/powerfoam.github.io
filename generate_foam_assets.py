@@ -2,14 +2,14 @@
 
 Outputs:
 
-  static/images/foam-text-pattern.png
-      Wide bubble texture used as `background-image` on h2 section
-      headers (via background-clip: text). Voronoi cells filled with a
-      purple-blue -> pink-red gradient that matches the title wordmark.
-
   static/images/foam-bubbles-bg.svg
       A handful of large, very faint foam blobs placed at fixed positions
       and pinned behind the page content as a subtle brand accent.
+
+Also exposes `render_text_pattern()` -- a Voronoi bubble texture sized
+for use as a background-clip:text fill on headings. Currently unused by
+the page (we settled on a plain linear-gradient there) but kept around
+in case we want to revisit the foam-textured headings.
 
 Run from the repo root:
 
@@ -131,7 +131,9 @@ def render_background_svg(out_path: Path) -> None:
 
 
 def main() -> None:
-    render_text_pattern(OUT_DIR / "foam-text-pattern.png")
+    # The text pattern is currently unused on the page; we keep the
+    # generator function above for future experiments but only emit the
+    # background SVG by default.
     render_background_svg(OUT_DIR / "foam-bubbles-bg.svg")
 
 
