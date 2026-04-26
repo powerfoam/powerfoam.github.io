@@ -30,6 +30,23 @@ figcaption {
     line-height: 1.65;
 }
 
+/* ---- Decorative foam-bubble background ----
+   A handful of large, very faint foam-coloured blobs pinned behind the
+   page content as a brand accent. Pointer-events disabled so it never
+   intercepts clicks or text selection; aria-hidden in markup so it's
+   ignored by assistive tech. */
+.foam-background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: url('../images/foam-bubbles-bg.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center top;
+    opacity: 0.55;
+}
+
 /* ---- Smooth in-page scrolling ----
    `scroll-padding-top` keeps the destination heading clear of any future
    fixed header and gives breathing room for hash navigation. */
@@ -49,22 +66,48 @@ section[id] {
     scroll-margin-top: 24px;
 }
 
+/* ---- Foam-bubble fill on section headings ----
+   `static/images/foam-text-pattern.png` is a 1600x220 Voronoi-bubble
+   gradient (purple-blue -> pink-red) that matches the wordmark used in
+   the title image. We paint the heading text with that texture using
+   `background-clip: text`, which makes the headers read as the same
+   visual family as the title. The `text-fill-color` fallback chain
+   keeps the heading legible if the browser doesn't support
+   background-clip on text. */
+h2.title.is-3 {
+    position: relative;
+    display: inline-block;
+    background-image: url('../images/foam-text-pattern.png');
+    background-repeat: no-repeat;
+    background-size: 100% 130%;
+    background-position: center 10%;
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+            text-fill-color: transparent;
+    /* Fallback colour for browsers without background-clip:text. */
+    color: #5e3a8a;
+    /* Slight letter spacing tightens the gradient look. */
+    letter-spacing: -0.005em;
+}
+
 /* ---- Hover-revealed anchor links next to section headings ----
    The "#" marker only appears when the user hovers (or focuses) the
    heading, so the page stays clean while still letting people grab
    permalinks to specific sections. Positioned absolutely so it can sit
-   beside a centred title without disturbing the alignment. */
-h2.title.is-3 {
-    position: relative;
-    display: inline-block;
-}
-
+   beside a centred title without disturbing the alignment. The
+   background-clip / text-fill-color resets undo the bubble-fill mask
+   inherited from h2.title.is-3 above. */
 .heading-anchor {
     position: absolute;
     right: calc(100% + 0.45em);
     top: 50%;
     transform: translateY(-50%) translateX(4px);
     color: #4a6fff;
+    -webkit-background-clip: border-box;
+            background-clip: border-box;
+    -webkit-text-fill-color: currentColor;
+            text-fill-color: currentColor;
     opacity: 0;
     text-decoration: none;
     font-weight: 500;
@@ -347,6 +390,26 @@ h2.title.is-3:focus-within .heading-anchor,
     max-width: 560px;
     width: 70%;
     height: auto;
+    /* Subtle "buoyancy" loop -- bobbing up/down with a slight lateral
+       sway so the foam bubbles read as actually floating. Soft transform
+       only, no opacity changes so the wordmark stays crisp. The
+       animation is disabled under prefers-reduced-motion (see below). */
+    animation: powerfoam-title-float 6s ease-in-out infinite;
+    transform-origin: center center;
+    will-change: transform;
+}
+
+@keyframes powerfoam-title-float {
+    0%, 100% { transform: translateY(0)    rotate(-0.4deg) scale(1); }
+    25%      { transform: translateY(-3px) rotate( 0.2deg) scale(1.005); }
+    50%      { transform: translateY(0)    rotate( 0.4deg) scale(1); }
+    75%      { transform: translateY(-2px) rotate(-0.1deg) scale(1.005); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .publication-title-logo {
+        animation: none;
+    }
 }
 
 .publication-subtitle {
