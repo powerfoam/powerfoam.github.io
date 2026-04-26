@@ -1,3 +1,20 @@
+/* ---- Page typography: Jost (variable font) ----
+   The site CSS declares `font-family: 'Jost', sans-serif`, but without an
+   @font-face rule the browser silently falls back to the system sans
+   (San Francisco / Segoe UI). We ship the variable Jost font locally so
+   no external CDN call is needed and the page matches the typography of
+   the video overlays (which are rasterised from the same family).
+   `font-display: swap` shows the fallback while Jost downloads instead of
+   leaving headings invisible. */
+@font-face {
+    font-family: 'Jost';
+    src: url('../fonts/Jost-VariableFont.ttf') format('truetype-variations'),
+         url('../fonts/Jost-VariableFont.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* ---- Smooth in-page scrolling ----
    `scroll-padding-top` keeps the destination heading clear of any future
    fixed header and gives breathing room for hash navigation. */
