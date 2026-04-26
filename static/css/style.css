@@ -30,23 +30,6 @@ figcaption {
     line-height: 1.65;
 }
 
-/* ---- Decorative foam-bubble background ----
-   A handful of large, very faint foam-coloured blobs pinned behind the
-   page content as a brand accent. Pointer-events disabled so it never
-   intercepts clicks or text selection; aria-hidden in markup so it's
-   ignored by assistive tech. */
-.foam-background {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image: url('../images/foam-bubbles-bg.svg');
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center top;
-    opacity: 0.55;
-}
-
 /* ---- Smooth in-page scrolling ----
    `scroll-padding-top` keeps the destination heading clear of any future
    fixed header and gives breathing room for hash navigation. */
