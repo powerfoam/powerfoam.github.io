@@ -122,10 +122,24 @@
                 <div class="columns is-centered">
                     <div class="column has-text-centered">
                         <h1 class="title is-1 publication-title">
-                            <img src="./static/images/powerfoam-title.png"
-                                alt="Power Foam"
-                                class="publication-title-logo"
-                                style="max-width: 900px; width: 90%;">
+                            <!-- Animated wordmark. Each foam cell oscillates
+                                 around its base position/radius with a per-cell
+                                 random phase, recomputing the power-diagram
+                                 every frame so the white separators follow.
+                                 Pre-rendered as a 4 s seamless loop by
+                                 scripts/title_to_video.py -- a regular MP4
+                                 here means no JS, no per-cell DOM cost, and
+                                 native autoplay-loop on every browser. -->
+                            <video class="powerfoam-title-video"
+                                autoplay loop muted playsinline preload="auto"
+                                aria-label="Power Foam">
+                                <!-- VP9 + alpha first so modern browsers
+                                     get a transparent background; H.264
+                                     fallback for browsers that can't play
+                                     VP9 alpha (composited against white). -->
+                                <source src="./static/videos/powerfoam-title.webm" type="video/webm">
+                                <source src="./static/videos/powerfoam-title.mp4"  type="video/mp4">
+                            </video>
                         </h1>
                         <h2 class="subtitle is-3 publication-subtitle">
                             Unifying Real-Time Differentiable Ray Tracing and Rasterization
@@ -231,7 +245,7 @@
                         teaser-video
                     </div>
                     <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
-                        Power Foam unifies real-time differentiable
+                        We unifies real-time differentiable
                         <b>ray tracing</b> and <b>rasterization</b> in a single scene representation.
                     </h2>
                 </div>
@@ -396,41 +410,56 @@
                         </p>
                     </div>
                     <figure class="zoom-figure">
-                        <!-- Desktop / wide layout: heatmap on the LEFT and the
-                             three dipole videos as a row on the RIGHT. -->
-                        <svg class="zoom-callout zoom-callout-desktop" viewBox="0 0 2930 700"
+                        <!-- Desktop / wide layout. Three equal 600×600 panels in
+                             a row:
+                               (1) Heatmap, square-cropped (the source PNG is
+                                   1920×1088 so `xMidYMid slice` trims the
+                                   left/right margins to a centred 1088×1088
+                                   square that's then scaled to 600×600).
+                               (2) Big 3D slice-plane view (side.mp4, square).
+                               (3) Two-column mini-grid: top.mp4 (1:1) and
+                                   displacement.mp4 (2:3), sized to a shared
+                                   336 px height so they sit on a common
+                                   baseline and exactly fill the 580 px-wide
+                                   inner area with a 20 px gap. -->
+                        <svg class="zoom-callout zoom-callout-desktop" viewBox="0 0 1840 600"
                             preserveAspectRatio="xMidYMid meet"
                             xmlns="http://www.w3.org/2000/svg"
                             aria-label="Distance heatmap of the Garden scene with a single leaf-tip cell highlighted, shown zoomed-in as side, top-down, and displacement views of its underlying dipole sphere.">
                             <image href="./static/images/trajectory_distance_heatmap_first_frame.png"
-                                x="0" y="152" width="700" height="396"/>
+                                x="0" y="0" width="600" height="600"
+                                preserveAspectRatio="xMidYMid slice"/>
                             <g class="zoom-rays">
-                                <line x1="381" y1="213" x2="770" y2="0"/>
-                                <line x1="381" y1="253" x2="770" y2="700"/>
+                                <line x1="348" y1="92"  x2="620" y2="0"/>
+                                <line x1="348" y1="153" x2="620" y2="600"/>
                             </g>
-                            <rect class="zoom-marker" x="341" y="213" width="40" height="40"/>
+                            <rect class="zoom-marker" x="287" y="92" width="61" height="61"/>
 
-                            <rect class="zoom-target-frame" x="770" y="0" width="2160" height="700"/>
-                            <foreignObject x="780" y="10" width="680" height="680">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/side.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
-                            </foreignObject>
-                            <foreignObject x="1500" y="10" width="680" height="680">
+                            <!-- CENTER: two-column mini-grid (top + displacement). -->
+                            <rect class="zoom-target-frame" x="620" y="0" width="600" height="600"/>
+                            <foreignObject x="630" y="132" width="336" height="336">
                                 <video xmlns="http://www.w3.org/1999/xhtml"
                                     src="./video/top_labeled.mp4"
                                     autoplay loop muted playsinline preload="metadata"
                                     style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
                                     aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
                             </foreignObject>
-                            <foreignObject x="2220" y="10" width="680" height="680">
+                            <foreignObject x="986" y="132" width="224" height="336">
                                 <video xmlns="http://www.w3.org/1999/xhtml"
                                     src="./video/displacement_labeled.mp4"
                                     autoplay loop muted playsinline preload="metadata"
                                     style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
                                     aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
+                            </foreignObject>
+
+                            <!-- RIGHT: big 3D slice-plane panel. -->
+                            <rect class="zoom-target-frame" x="1240" y="0" width="600" height="600"/>
+                            <foreignObject x="1250" y="10" width="580" height="580">
+                                <video xmlns="http://www.w3.org/1999/xhtml"
+                                    src="./video/side.mp4"
+                                    autoplay loop muted playsinline preload="metadata"
+                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
+                                    aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
                             </foreignObject>
                         </svg>
 
@@ -494,7 +523,7 @@
                             
                         </p>
                     </div>
-                    <figure class="image" style="margin: 1.5rem auto 0 auto;">
+                    <figure class="image" style="margin: 1.5rem auto 0 auto; max-width: 720px;">
                         <img src="./static/images/fps_combined.png"
                              alt="Scatter plot comparing rasterization FPS (y-axis) against ray tracing FPS (x-axis) for several methods. Power Foam (ours) sits in the upper-right at ray 174 / raster 275, simultaneously matching the best rasterizer and the best ray tracer."
                              style="display: block; margin: 0 auto; max-width: 100%; height: auto;">
@@ -864,10 +893,18 @@
                             light-transport phenomena.
                         </p>
                     </div>
-                    <video src="./video/reflection_refraction_combined.mp4"
-                        autoplay loop muted playsinline preload="metadata"
-                        style="width: 100%; border-radius: 8px; display: block;"
-                        aria-label="Reflection and refraction trajectories rendered with Power Foam, demonstrating complex light-transport phenomena."></video>
+                    <!-- Two square clips side-by-side instead of one
+                         alternating combined video. Each takes half the
+                         row width on desktop; on phones they stack so
+                         each still fills the screen at full size. -->
+                    <div class="raytracing-pair">
+                        <video src="./video/reflection_square.mp4"
+                            autoplay loop muted playsinline preload="metadata"
+                            aria-label="Reflection trajectory rendered with Power Foam: a chrome sphere reflecting the surrounding plaza."></video>
+                        <video src="./video/refraction_square.mp4"
+                            autoplay loop muted playsinline preload="metadata"
+                            aria-label="Refraction trajectory rendered with Power Foam: a glass sphere refracting the dried-flower arrangement behind it."></video>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1218,7 +1255,7 @@
                 });
             }
             const INITIAL_RADII =
-                [4.0, 8.0, 2.0, 3.5, 7.0, 5.0, 5.5].map(function (r) { return r * FIG23_ZOOM; });
+                [7.0, 8.0, 2.0, 3.5, 7.0, 5.0, 5.5].map(function (r) { return r * FIG23_ZOOM; });
 
             // Pastel cell colours: HSV(h = (i + 0.5) / 7, s = 0.22, v = 0.97),
             // enumerated in reverse order to match CELL_COLORS in the Python figure.
