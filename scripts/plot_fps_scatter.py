@@ -70,8 +70,8 @@ def _is_ours(name: str) -> bool:
 
 
 def _ours_style() -> dict:
-    return dict(color=OURS_COLOR, marker="*", s=360, zorder=5,
-                edgecolors="black", linewidths=1.0)
+    return dict(color=OURS_COLOR, marker="*", s=620, zorder=5,
+                edgecolors="black", linewidths=1.2)
 
 
 def _other_style() -> dict:
@@ -86,6 +86,27 @@ def _point_style(name: str) -> dict:
 def _halo_around(ax, xy, size=650) -> None:
     ax.scatter(*xy, s=size, color=OURS_HALO, alpha=0.55,
                edgecolors="none", zorder=4, marker="*")
+
+
+def _ours_guide_lines(ax, xy) -> None:
+    """Dashed red guide lines from the "ours" star down to the x-axis
+    and across to the y-axis. Drawn at low zorder so they sit behind
+    the star and its halo.
+    """
+    x, y = xy
+    dash_kwargs = dict(
+        linestyle=(0, (6, 5)),
+        linewidth=1.8,
+        color=OURS_COLOR,
+        alpha=0.75,
+        solid_capstyle="butt",
+        dash_capstyle="butt",
+        # Sit below every annotation (text default zorder is 3) so the
+        # dashes never run over the per-point labels.
+        zorder=0,
+    )
+    ax.plot([x, x], [0, y], **dash_kwargs)
+    ax.plot([0, x], [y, y], **dash_kwargs)
 
 
 def _label_text(name: str, value_str: str) -> str:
@@ -103,6 +124,7 @@ def _annotate(ax, xy, text, name, offset, ha="center", va="bottom") -> None:
         fontsize=14,
         fontweight="bold" if _is_ours(name) else "normal",
         color=OURS_COLOR if _is_ours(name) else "black",
+        zorder=6,
     )
 
 
@@ -123,13 +145,14 @@ LABEL_PLACEMENT = {
     r"$\beta$-splat":    ("left",  "center", (14,  0)),
     # Ray-tracing-only (sit on the x-axis): label above the dot.
     "3DGRT":             ("center", "bottom", (0, 14)),
-    "Radiant Foam":      ("center", "bottom", (0, 14)),
+    "Radiant Foam":      ("left",   "bottom", (16, 14)),
 }
 
 
 def _draw_point(ax, name, xy, full_label) -> None:
     if _is_ours(name):
-        _halo_around(ax, xy, size=900)
+        _ours_guide_lines(ax, xy)
+        _halo_around(ax, xy, size=1500)
     ax.scatter(*xy, **_point_style(name))
     ha, va, offset = LABEL_PLACEMENT.get(name, ("left", "bottom", (12, 12)))
     _annotate(
