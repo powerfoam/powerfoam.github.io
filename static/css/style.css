@@ -20,14 +20,14 @@
    list items, captions and other em/rem-based text scale up. */
 body {
     font-size: 1.125rem;    /* 18px @ default 16px root */
-    line-height: 1.6;
+    line-height: 1.25;
 }
 
 .content p,
 .content li,
 figcaption {
     font-size: 1.125rem;
-    line-height: 1.65;
+    line-height: 1.25;
 }
 
 /* ---- Smooth in-page scrolling ----
@@ -656,9 +656,9 @@ h2.title.is-3:focus-within .heading-anchor,
 .zoom-callout .zoom-marker {
     fill: none;
     stroke: #ffffff;
-    stroke-width: 8;
+    stroke-width: 3;
     paint-order: stroke;
-    filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.8));
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.8));
 }
 
 .zoom-callout .zoom-rays line {
