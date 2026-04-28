@@ -435,8 +435,9 @@
                             </g>
                             <rect class="zoom-marker" x="287" y="92" width="61" height="61"/>
 
-                            <!-- CENTER: two-column mini-grid (top + displacement). -->
-                            <rect class="zoom-target-frame" x="620" y="0" width="600" height="600"/>
+                            <!-- RIGHT: single combined panel with top + displacement (left half)
+                                 and the big 3D slice-plane view (right half). -->
+                            <rect class="zoom-target-frame" x="620" y="0" width="1220" height="600"/>
                             <foreignObject x="630" y="132" width="336" height="336">
                                 <video xmlns="http://www.w3.org/1999/xhtml"
                                     src="./video/top_labeled.mp4"
@@ -451,9 +452,6 @@
                                     style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
                                     aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
                             </foreignObject>
-
-                            <!-- RIGHT: big 3D slice-plane panel. -->
-                            <rect class="zoom-target-frame" x="1240" y="0" width="600" height="600"/>
                             <foreignObject x="1250" y="10" width="580" height="580">
                                 <video xmlns="http://www.w3.org/1999/xhtml"
                                     src="./video/side.mp4"
@@ -479,27 +477,30 @@
                             </g>
                             <rect class="zoom-marker" x="526" y="329" width="62" height="62"/>
 
+                            <!-- Order matches the desktop layout: top, displacement,
+                                 side (left to right), so the figure reads the same
+                                 way regardless of viewport. -->
                             <rect class="zoom-target-frame" x="10" y="720" width="1060" height="360"/>
                             <foreignObject x="20" y="730" width="340" height="340">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/side.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
-                            </foreignObject>
-                            <foreignObject x="370" y="730" width="340" height="340">
                                 <video xmlns="http://www.w3.org/1999/xhtml"
                                     src="./video/top_labeled.mp4"
                                     autoplay loop muted playsinline preload="metadata"
                                     style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
                                     aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
                             </foreignObject>
-                            <foreignObject x="720" y="730" width="340" height="340">
+                            <foreignObject x="370" y="730" width="340" height="340">
                                 <video xmlns="http://www.w3.org/1999/xhtml"
                                     src="./video/displacement_labeled.mp4"
                                     autoplay loop muted playsinline preload="metadata"
                                     style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
                                     aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
+                            </foreignObject>
+                            <foreignObject x="720" y="730" width="340" height="340">
+                                <video xmlns="http://www.w3.org/1999/xhtml"
+                                    src="./video/side.mp4"
+                                    autoplay loop muted playsinline preload="metadata"
+                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
+                                    aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
                             </foreignObject>
                         </svg>
                     </figure>
@@ -568,6 +569,15 @@
                     <div class="comparison-indicator">
                         <span class="comparison-scene-name" id="comparisonSceneName">Garden</span>
                         <span class="comparison-counter" id="comparisonCounter">1 / 6</span>
+                        <!-- Resets all three videos in the current row to
+                             time 0 and plays them, so a viewer can re-align
+                             the trajectories after pausing or scrubbing. -->
+                        <button type="button" class="comparison-resync-btn" id="comparisonResync"
+                                title="Resync all videos to the start"
+                                aria-label="Resync all comparison videos to the start">
+                            <span class="icon"><i class="fas fa-sync-alt"></i></span>
+                            <span>Resync</span>
+                        </button>
                     </div>
                     <button type="button" class="comparison-nav-btn" id="comparisonNext"
                         aria-label="Next scene">
@@ -575,21 +585,10 @@
                     </button>
                 </div>
 
-                <!-- Right side: headers + one visible video row -->
+                <!-- Right side: one visible video row + column captions
+                     beneath. Captions live under the rows now so each
+                     method label sits just below its own clip. -->
                 <div class="comparison-carousel-content">
-
-                    <!-- Column Headers -->
-                    <div class="columns is-centered has-text-centered" style="margin-bottom: 0;">
-                        <div class="column">
-                            <h3 class="title is-5">3DGUT</h3>
-                        </div>
-                        <div class="column">
-                            <h3 class="title is-5">Radiant Foam</h3>
-                        </div>
-                        <div class="column">
-                            <h3 class="title is-5">Power Foam (Ours)</h3>
-                        </div>
-                    </div>
 
                     <div class="comparison-rows" id="comparisonRows">
 
@@ -834,6 +833,20 @@
             </div>
 
                     </div><!-- /.comparison-rows -->
+
+                    <!-- Column captions: stay fixed below all rows since
+                         only one row is ever visible at a time. -->
+                    <div class="columns is-centered has-text-centered comparison-captions">
+                        <div class="column">
+                            <h3 class="title is-5 has-text-centered video-caption">3DGUT</h3>
+                        </div>
+                        <div class="column">
+                            <h3 class="title is-5 has-text-centered video-caption">Radiant Foam</h3>
+                        </div>
+                        <div class="column">
+                            <h3 class="title is-5 has-text-centered video-caption">Power Foam (Ours)</h3>
+                        </div>
+                    </div>
                 </div><!-- /.comparison-carousel-content -->
             </div><!-- /.comparison-carousel -->
 
@@ -856,25 +869,36 @@
                     </div>
                 </div>
             </div>
-            <div class="columns is-centered">
+            <!-- Centered toolbar with a Resync button. Click to rewind both
+                 fisheye videos to t=0 and resume playback so the rasterized
+                 and ray-traced trajectories line up again. -->
+            <div class="fisheye-toolbar">
+                <button type="button" class="comparison-resync-btn" id="fisheyeResync"
+                        title="Resync both fisheye videos to the start"
+                        aria-label="Resync both fisheye videos to the start">
+                    <span class="icon"><i class="fas fa-sync-alt"></i></span>
+                    <span>Resync</span>
+                </button>
+            </div>
+            <div class="columns is-centered" id="fisheyePair">
                 <div class="column">
-                    <h3 class="title is-5 has-text-centered">Rasterization</h3>
                     <div style="position: relative;">
                         <video poster="" autoplay controls muted loop playsinline
                             style="width: 100%; border-radius: 8px; display: block;">
                             <source src="fisheye/rasterize_fisheye.mp4" type="video/mp4">
                         </video>
                     </div>
+                    <h3 class="title is-5 has-text-centered video-caption">Rasterization</h3>
                 </div>
 
                 <div class="column">
-                    <h3 class="title is-5 has-text-centered">Ray tracing</h3>
                     <div style="position: relative;">
                         <video poster="" autoplay controls muted loop playsinline
                             style="width: 100%; border-radius: 8px; display: block;">
                             <source src="fisheye/raytrace_fisheye.mp4" type="video/mp4">
                         </video>
                     </div>
+                    <h3 class="title is-5 has-text-centered video-caption">Ray tracing</h3>
                 </div>
             </div>
         </div>
@@ -898,12 +922,18 @@
                          row width on desktop; on phones they stack so
                          each still fills the screen at full size. -->
                     <div class="raytracing-pair">
-                        <video src="./video/reflection_square.mp4"
-                            autoplay loop muted playsinline preload="metadata"
-                            aria-label="Reflection trajectory rendered with Power Foam: a chrome sphere reflecting the surrounding plaza."></video>
-                        <video src="./video/refraction_square.mp4"
-                            autoplay loop muted playsinline preload="metadata"
-                            aria-label="Refraction trajectory rendered with Power Foam: a glass sphere refracting the dried-flower arrangement behind it."></video>
+                        <div class="raytracing-figure">
+                            <video src="./video/reflection_square.mp4"
+                                autoplay loop muted playsinline preload="metadata"
+                                aria-label="Reflection trajectory rendered with Power Foam: a chrome sphere reflecting the surrounding plaza."></video>
+                            <h3 class="title is-5 has-text-centered video-caption">Reflection</h3>
+                        </div>
+                        <div class="raytracing-figure">
+                            <video src="./video/refraction_square.mp4"
+                                autoplay loop muted playsinline preload="metadata"
+                                aria-label="Refraction trajectory rendered with Power Foam: a glass sphere refracting the dried-flower arrangement behind it."></video>
+                            <h3 class="title is-5 has-text-centered video-caption">Refraction</h3>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1197,6 +1227,76 @@
             prevBtn.addEventListener('click', function () { show(current - 1); });
             nextBtn.addEventListener('click', function () { show(current + 1); });
 
+            // Resync button: rewind every video in the current row to t=0 and
+            // resume playback, so the three methods line up trajectory-wise.
+            var resyncBtn = document.getElementById('comparisonResync');
+            if (resyncBtn) {
+                resyncBtn.addEventListener('click', function () {
+                    var row = rows[current];
+                    if (!row) return;
+                    playRowVideos(row);
+                    // Tiny visual nudge so the user gets feedback that the
+                    // click registered, even when the videos were already
+                    // playing in sync.
+                    resyncBtn.classList.add('is-spinning');
+                    setTimeout(function () {
+                        resyncBtn.classList.remove('is-spinning');
+                    }, 600);
+                });
+            }
+
+            // Pause / play sync: pausing any one of the three videos in a
+            // row pauses the other two, and resuming one resumes the other
+            // two. Scoped per-row so off-screen rows aren't woken up.
+            // A re-entrancy guard prevents the chained pause/play events
+            // from triggering each other forever.
+            var syncing = false;
+            rows.forEach(function (row) {
+                var rowVideos =
+                    Array.prototype.slice.call(row.querySelectorAll('video'));
+                if (rowVideos.length < 2) return;
+
+                rowVideos.forEach(function (v) {
+                    v.addEventListener('pause', function () {
+                        if (syncing) return;
+                        // Don't sync the implicit pause that fires when the
+                        // tab/section goes off-screen and our auto-pauser
+                        // takes over -- only react when the user pauses a
+                        // visible row.
+                        if (!row.classList.contains('is-active')) return;
+                        syncing = true;
+                        try {
+                            rowVideos.forEach(function (other) {
+                                if (other !== v && !other.paused) {
+                                    try { other.pause(); } catch (e) { /* noop */ }
+                                }
+                            });
+                        } finally {
+                            setTimeout(function () { syncing = false; }, 30);
+                        }
+                    });
+                    v.addEventListener('play', function () {
+                        if (syncing) return;
+                        if (!row.classList.contains('is-active')) return;
+                        syncing = true;
+                        try {
+                            rowVideos.forEach(function (other) {
+                                if (other !== v && other.paused) {
+                                    try {
+                                        var p = other.play();
+                                        if (p && typeof p.catch === 'function') {
+                                            p.catch(function () { });
+                                        }
+                                    } catch (e) { /* noop */ }
+                                }
+                            });
+                        } finally {
+                            setTimeout(function () { syncing = false; }, 30);
+                        }
+                    });
+                });
+            });
+
             // Keyboard arrows (only when the carousel section is in view).
             document.addEventListener('keydown', function (e) {
                 if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
@@ -1213,6 +1313,76 @@
 
             // Initialise: ensure only the first row is active and others are paused.
             show(0);
+        })();
+
+        // Resync + pause/play sync for the two fisheye videos. Mirrors the
+        // logic used by the comparison carousel above, scoped to just the
+        // rasterization + ray tracing pair.
+        (function () {
+            var pair = document.getElementById('fisheyePair');
+            var resyncBtn = document.getElementById('fisheyeResync');
+            if (!pair) return;
+
+            var videos = Array.prototype.slice.call(pair.querySelectorAll('video'));
+            if (videos.length < 2) return;
+
+            function resync() {
+                videos.forEach(function (v) {
+                    try {
+                        v.currentTime = 0;
+                        var p = v.play();
+                        if (p && typeof p.catch === 'function') { p.catch(function () { }); }
+                    } catch (e) { /* noop */ }
+                });
+            }
+
+            if (resyncBtn) {
+                resyncBtn.addEventListener('click', function () {
+                    resync();
+                    resyncBtn.classList.add('is-spinning');
+                    setTimeout(function () {
+                        resyncBtn.classList.remove('is-spinning');
+                    }, 600);
+                });
+            }
+
+            // Pause one => pause the other; play one => play the other.
+            // Re-entrancy guard prevents the chained events from feeding
+            // back on each other.
+            var syncing = false;
+            videos.forEach(function (v) {
+                v.addEventListener('pause', function () {
+                    if (syncing) return;
+                    syncing = true;
+                    try {
+                        videos.forEach(function (other) {
+                            if (other !== v && !other.paused) {
+                                try { other.pause(); } catch (e) { /* noop */ }
+                            }
+                        });
+                    } finally {
+                        setTimeout(function () { syncing = false; }, 30);
+                    }
+                });
+                v.addEventListener('play', function () {
+                    if (syncing) return;
+                    syncing = true;
+                    try {
+                        videos.forEach(function (other) {
+                            if (other !== v && other.paused) {
+                                try {
+                                    var p = other.play();
+                                    if (p && typeof p.catch === 'function') {
+                                        p.catch(function () { });
+                                    }
+                                } catch (e) { /* noop */ }
+                            }
+                        });
+                    } finally {
+                        setTimeout(function () { syncing = false; }, 30);
+                    }
+                });
+            });
         })();
     </script>
 
@@ -1996,7 +2166,50 @@
                     if (resetBtn) resetBtn.addEventListener('click', resetState);
                 }
 
+                installInteractiveCursorHint(allPanels);
+
                 renderAll();
+            }
+
+            // Ambient click-cursor hint: a small animated hand icon overlaid
+            // in the corner of each interactive demo panel. Visible by default
+            // to advertise that the panel is interactive; fades out the moment
+            // the cursor enters the panel so it doesn't get in the user's way.
+            function installInteractiveCursorHint(panels) {
+                if (!panels || panels.length === 0) return;
+
+                const HINT_SVG = ''
+                    + '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" '
+                    +     'fill="none" stroke="#3a3a3a" stroke-width="2" '
+                    +     'stroke-linecap="round" stroke-linejoin="round">'
+                    +   '<line x1="3"  y1="3"   x2="6"  y2="6"/>'
+                    +   '<line x1="9"  y1="1.5" x2="9"  y2="5"/>'
+                    +   '<line x1="15" y1="3"   x2="12" y2="6"/>'
+                    +   '<path d="M11 9 v9 l-2 -1.2 a2 2 0 0 0 -2.6 2.7 '
+                    +         'l4 6 a4 4 0 0 0 3.4 1.8 h5 '
+                    +         'a4 4 0 0 0 4 -4 v-7 a1.5 1.5 0 0 0 -3 0 '
+                    +         'v-2 a1.5 1.5 0 0 0 -3 0 v-1.5 '
+                    +         'a1.5 1.5 0 0 0 -3 0 v-4 a1.5 1.5 0 0 0 -3 0 z"/>'
+                    + '</svg>';
+
+                for (let i = 0; i < panels.length; i++) {
+                    const panel = panels[i];
+                    const wrap = panel.parentNode;
+                    if (!wrap) continue;
+
+                    const hint = document.createElement('div');
+                    hint.className = 'interactive-cursor-hint';
+                    hint.setAttribute('aria-hidden', 'true');
+                    hint.innerHTML = HINT_SVG;
+                    wrap.appendChild(hint);
+
+                    panel.addEventListener('pointerenter', function () {
+                        hint.classList.add('is-hidden');
+                    });
+                    panel.addEventListener('pointerleave', function () {
+                        hint.classList.remove('is-hidden');
+                    });
+                }
             }
 
             if (document.readyState === 'loading') {

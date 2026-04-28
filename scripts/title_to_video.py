@@ -52,7 +52,7 @@ OUT_WEBM = OUT_DIR / "powerfoam-title.webm"    # alpha-preserving primary
 VIDEO_WIDTH_PX = 1024          # final width before x264 even-dim padding
 DPI = 100
 FPS = 30
-DURATION_S = 4.0               # one full motion cycle
+DURATION_S = 5.0               # one full motion cycle (loops 2x inside the 10s slider)
 N_FRAMES = int(round(FPS * DURATION_S))
 
 # Encoding -- aim for "small, fast-decoding, looks fine" rather than maximum

@@ -511,12 +511,22 @@ h2.title.is-3:focus-within .heading-anchor,
     margin: 0 0 0 0;
 }
 
-.raytracing-pair video {
+.raytracing-figure {
     flex: 1 1 0;
     min-width: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.raytracing-pair video {
     width: 100%;
     max-width: 100%;
-    aspect-ratio: 1 / 1;
+    /* Source clips are 720x580 after the burned-in label was cropped off.
+       Reserving the right aspect-ratio prevents layout shift while the
+       video metadata is being fetched. */
+    aspect-ratio: 720 / 580;
     height: auto;
     object-fit: cover;
     border-radius: 8px;
@@ -524,9 +534,32 @@ h2.title.is-3:focus-within .heading-anchor,
     background: #000;
 }
 
+/* Shared caption style for any "title" placed *below* a video clip.
+   Lifts the default Bulma .title spacing to match the gap that the
+   carousel naturally produces (column padding + row margin) so every
+   video on the page reads with the same vertical rhythm. */
+.video-caption {
+    margin-top: 1.5rem !important;
+    margin-bottom: 0 !important;
+}
+
+/* Comparison carousel column captions sit at the bottom of the
+   carousel, just under whichever row is currently active. The
+   .video-caption rule above already supplies the gap, so the row
+   itself doesn't add any extra. */
+.comparison-captions {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.comparison-captions .column {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 @media (max-width: 768px) {
-    /* Phones: each square clip spans the full screen width and stacks
-       under the other so the burned-in caption stays readable. */
+    /* Phones: each clip spans the full screen width and stacks under the
+       other so they're large enough to read at a glance. */
     .raytracing-pair {
         flex-direction: column;
         flex-wrap: nowrap;
@@ -536,16 +569,21 @@ h2.title.is-3:focus-within .heading-anchor,
         margin-right: calc(50% - 50vw);
     }
 
-    .raytracing-pair video {
+    .raytracing-figure {
         flex: 0 0 auto;
         width: 100vw;
         max-width: 100vw;
-        border-radius: 0;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
     }
 
-    .raytracing-pair video:last-child {
+    .raytracing-figure:last-child {
         margin-bottom: 0;
+    }
+
+    .raytracing-pair video {
+        width: 100vw;
+        max-width: 100vw;
+        border-radius: 0;
     }
 }
 
@@ -592,9 +630,8 @@ h2.title.is-3:focus-within .heading-anchor,
 
 .zoom-callout .zoom-target-frame {
     fill: none;
-    stroke: #ffffff;
-    stroke-width: 8;
-    filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
+    stroke: #cccccc;
+    stroke-width: 2;
 }
 
 /* Interactive method figure (radical axis vs equidistant plane) */
@@ -806,6 +843,50 @@ h2.title.is-3:focus-within .heading-anchor,
     }
 }
 
+/* Ambient click-hint icon sitting on top of each interactive demo panel.
+   Visible by default (so the panel itself looks interactive), and faded
+   out via the .is-hidden class as soon as the cursor enters the panel.
+   pointer-events: none so it never intercepts drags / clicks. */
+.interactive-panel-wrap {
+    position: relative;
+}
+
+.interactive-cursor-hint {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.85;
+    transition: opacity 0.18s ease-out;
+}
+
+.interactive-cursor-hint.is-hidden {
+    opacity: 0;
+}
+
+.interactive-cursor-hint svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+    animation: interactive-cursor-bob 1.4s ease-in-out infinite;
+    transform-origin: 30% 30%;
+}
+
+@keyframes interactive-cursor-bob {
+    0%   { transform: translate(0, 0)   rotate(0deg)  scale(1); }
+    25%  { transform: translate(0, -2px) rotate(-6deg) scale(0.94); }
+    55%  { transform: translate(0, 1px)  rotate(2deg)  scale(1.05); }
+    100% { transform: translate(0, 0)   rotate(0deg)  scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .interactive-cursor-hint svg { animation: none; }
+}
+
 .method-figure img {
     width: 100%;
     max-width: 100%;
@@ -928,6 +1009,64 @@ pre.bibtex-block {
     font-variant-numeric: tabular-nums;
 }
 
+/* Small "Resync" pill that re-aligns the three videos in the current
+   row to t=0. Tucked under the scene counter so it stays grouped with
+   the other carousel controls without competing visually with the
+   prev/next arrows. */
+.comparison-resync-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    margin-top: 0.55rem;
+    padding: 0.22rem 0.65rem;
+    background: transparent;
+    border: 1px solid #d4d4d4;
+    border-radius: 999px;
+    color: #555;
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease,
+                border-color 0.15s ease, transform 0.1s ease;
+}
+
+.comparison-resync-btn:hover {
+    background: #363636;
+    color: #fff;
+    border-color: #363636;
+}
+
+.comparison-resync-btn:active {
+    transform: scale(0.94);
+}
+
+.comparison-resync-btn .icon {
+    font-size: 0.7rem;
+    height: 0.85rem;
+    width: 0.85rem;
+}
+
+/* Brief spin to acknowledge the click even when nothing visibly
+   changes (e.g. the videos were already in-sync and playing). */
+@keyframes comparison-resync-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.comparison-resync-btn.is-spinning .icon i {
+    display: inline-block;
+    animation: comparison-resync-spin 0.6s linear 1;
+}
+
+/* Centered toolbar above the rasterization / ray tracing fisheye pair. */
+.fisheye-toolbar {
+    display: flex;
+    justify-content: center;
+    margin: 0.25rem 0 0.75rem 0;
+}
+
 .comparison-row {
     display: none !important;
 }
@@ -986,6 +1125,15 @@ pre.bibtex-block {
     .container.is-max-desktop {
         padding-left: 1rem;
         padding-right: 1rem;
+    }
+
+    /* Justified body copy creates ugly word-spacing rivers in narrow
+       columns (especially the Abstract paragraph on phones). Fall back
+       to natural left alignment so the spacing matches the captions
+       and the rest of the page reads cleanly. */
+    .content.has-text-justified,
+    .content.has-text-justified p {
+        text-align: left !important;
     }
 
     /* ---- Interactive method figures ----
