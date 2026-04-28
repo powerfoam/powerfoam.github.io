@@ -203,17 +203,6 @@
                                     </a>
                                 </span>
 
-                                <!-- Video -->
-                                <span class="link-block">
-                                    <a href="#results"
-                                        class="external-link button is-normal is-rounded is-dark">
-                                        <span class="icon">
-                                            <i class="fab fa-youtube"></i>
-                                        </span>
-                                        <span>Video</span>
-                                    </a>
-                                </span>
-
                                 <!-- Code -->
                                 <span class="link-block">
                                     <a href="#"
@@ -237,9 +226,12 @@
         <div class="container is-max-desktop">
             <div class="columns is-centered has-text-centered">
                 <div class="column is-full">
-                    <div class="teaser-video placeholder-video">
-                        teaser-video
-                    </div>
+                    <video class="teaser-video"
+                        autoplay loop muted playsinline preload="metadata"
+                        aria-label="Power Foam teaser combining real-time rasterization and ray tracing.">
+                        <source src="./video/powerfoam-teaser-combined.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
                     <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
                         We unify real-time differentiable
                         <b>ray tracing</b> and <b>rasterization</b> in a single scene representation.
@@ -431,8 +423,12 @@
                                  so it doesn't bleed into the right panel.
                                  SCALE=2.5: tx=317.5*(1-2.5)=-476.25, ty=-183.75. -->
                             <defs>
+                                <!-- Rounded-rect clip so the heatmap renders with the
+                                     same 8 px-ish radius as every other panel on the
+                                     page. SVG `<image>` doesn't honour border-radius,
+                                     hence the clipPath. -->
                                 <clipPath id="heatmap-clip-desktop">
-                                    <rect x="0" y="0" width="600" height="600"/>
+                                    <rect x="0" y="0" width="600" height="600" rx="18" ry="18"/>
                                 </clipPath>
                             </defs>
                             <g clip-path="url(#heatmap-clip-desktop)">
@@ -440,13 +436,20 @@
                                     <image href="./static/images/trajectory_distance_heatmap_first_frame.png"
                                         x="0" y="0" width="600" height="600"
                                         preserveAspectRatio="xMidYMid slice"/>
-                                    <rect class="zoom-marker" x="287" y="92" width="61" height="61"
+                                    <!-- Marker is 20×20 in child coords (renders 50×50
+                                         in viewBox units after the parent scale(2.5))
+                                         so it tightly hugs a single sphere. On-screen
+                                         centre is unchanged: (307.5+10, 112.5+10) =
+                                         (317.5, 122.5). -->
+                                    <rect class="zoom-marker" x="307.5" y="112.5" width="20" height="20"
                                         vector-effect="non-scaling-stroke"/>
                                 </g>
                             </g>
                             <g class="zoom-rays">
-                                <line x1="393.75" y1="46.25"  x2="620" y2="0"/>
-                                <line x1="393.75" y1="198.75" x2="620" y2="600"/>
+                                <!-- Rays anchor at the marker's on-screen top-right
+                                     (342.5, 97.5) and bottom-right (342.5, 147.5). -->
+                                <line x1="342.5" y1="97.5"  x2="620" y2="0"/>
+                                <line x1="342.5" y1="147.5" x2="620" y2="600"/>
                             </g>
 
                             <!-- RIGHT: single combined panel with top + displacement (left half)
@@ -486,21 +489,30 @@
                             <!-- See the desktop layout above for the zoom math. Marker
                                  centre (557, 360), SCALE=2.5 → tx=-835.5, ty=-540. -->
                             <defs>
+                                <!-- Rounded-rect clip so the heatmap renders with
+                                     softened corners (matches the desktop layout
+                                     and the rest of the site's panel rounding). -->
                                 <clipPath id="heatmap-clip-mobile">
-                                    <rect x="0" y="0" width="1080" height="608"/>
+                                    <rect x="0" y="0" width="1080" height="608" rx="18" ry="18"/>
                                 </clipPath>
                             </defs>
                             <g clip-path="url(#heatmap-clip-mobile)">
                                 <g transform="translate(-835.5 -540) scale(2.5)">
                                     <image href="./static/images/trajectory_distance_heatmap_first_frame.png"
                                         x="0" y="0" width="1080" height="608"/>
-                                    <rect class="zoom-marker" x="526" y="329" width="62" height="62"
+                                    <!-- Marker is 20×20 in child coords (renders 50×50
+                                         after the scale(2.5)) so it tightly hugs a
+                                         single sphere. On-screen centre unchanged:
+                                         (547+10, 350+10) = (557, 360). -->
+                                    <rect class="zoom-marker" x="547" y="350" width="20" height="20"
                                         vector-effect="non-scaling-stroke"/>
                                 </g>
                             </g>
                             <g class="zoom-rays">
-                                <line x1="479.5" y1="437.5" x2="10" y2="720"/>
-                                <line x1="634.5" y1="437.5" x2="1070" y2="720"/>
+                                <!-- Rays anchor at the marker's on-screen bottom-left
+                                     (532, 385) and bottom-right (582, 385). -->
+                                <line x1="532" y1="385" x2="10" y2="720"/>
+                                <line x1="582" y1="385" x2="1070" y2="720"/>
                             </g>
 
                             <!-- Order matches the desktop layout: top, displacement,

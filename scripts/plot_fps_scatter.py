@@ -196,7 +196,10 @@ def build_figure(out_path: Path) -> None:
     x_max = max(all_ray) * 1.25
     y_max = max(all_raster) * 1.15
 
-    fig, ax = plt.subplots(figsize=(10, 7.6))
+    # Golden-ratio canvas (~1.618:1) so the plot reads as wider than
+    # tall instead of squarish. The data range is unchanged; only the
+    # vertical extent of the figure is compressed.
+    fig, ax = plt.subplots(figsize=(10, 6.2))
     fig.patch.set_facecolor("white")
     ax.set_facecolor("none")
 
@@ -253,7 +256,7 @@ def build_figure(out_path: Path) -> None:
     for name, ray_fps, raster_fps in BOTH:
         _draw_point(
             ax, name, (ray_fps, raster_fps),
-            f"ray {ray_fps} / raster {raster_fps}",
+            f"ray {ray_fps} FPS / raster {raster_fps} FPS",
         )
 
     # Rasterization-only methods: pinned to the y-axis (x = 0).

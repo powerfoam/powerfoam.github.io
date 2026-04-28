@@ -317,6 +317,34 @@ h2.title.is-3:focus-within .heading-anchor,
     border-radius: 8px;
 }
 
+/* ===== Shared panel drop shadow =====
+   Soft black blur, no offset. Applied to every major media panel
+   (placeholder, qualitative comparisons, fisheye, ray-tracing pair,
+   interactive figures, FPS plot, geometry-appearance figure pieces)
+   so the whole page reads with one consistent depth treatment. */
+.placeholder-video,
+.teaser-video,
+#comparisonRows .comparison-row .column video,
+#fisheyePair video,
+.raytracing-pair video,
+.interactive-panel-wrap > svg.interactive-panel {
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.22);
+}
+
+/* SVG content can't take a CSS box-shadow cleanly, so use a matching
+   `drop-shadow` filter on each inner panel of the geometry-appearance
+   figure (the heatmap image and the dipole frame box). The heatmap is
+   wrapped in a `<g clip-path="url(#heatmap-clip-...)">` group with a
+   rounded-rect clip, so the filter has to live on that group (not on
+   the `<image>` itself) for the shadow to follow the rounded edge. */
+.zoom-callout > g[clip-path] {
+    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.22));
+}
+
+.zoom-callout .zoom-target-frame {
+    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.22));
+}
+
 .teaser-video {
     display: block;
     width: 100%;
@@ -414,10 +442,14 @@ h2.title.is-3:focus-within .heading-anchor,
 .powerfoam-title-video {
     display: block;
     margin: 0 auto;
-    /* Font-style baseline cap: never wider than 720 px, never less than
-       60 % of the column. Roughly tracks the original PNG dimensions. */
-    width: 90%;
-    max-width: 720px;
+    /* Width-match the subtitle ("Unifying Real-Time Differentiable Ray
+       Tracing and Rasterization") which naturally renders to ~880 px in
+       Jost @ 2 rem on desktop, so the wordmark and subtitle line up
+       edge-to-edge. Falls back to 95 % of the column on narrower
+       viewports where the subtitle wraps and column width is the
+       binding constraint. */
+    width: 95%;
+    max-width: 880px;
     height: auto;
     /* No background, no border -- the WebM source is alpha-transparent
        so only the foam cells render. The MP4 fallback ships with a white
