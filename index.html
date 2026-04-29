@@ -412,7 +412,13 @@
                                    displacement.mp4 (2:3), sized to a shared
                                    336 px height so they sit on a common
                                    baseline and exactly fill the 580 px-wide
-                                   inner area with a 20 px gap. -->
+                                   inner area with a 20 px gap.
+                             The whole thing lives in a position-relative shell
+                             whose aspect-ratio mirrors the SVG viewBox so the
+                             HTML <video> overlays (used in place of foreignObject
+                             for Safari compatibility) sit at exactly the right
+                             coordinates. -->
+                        <div class="zoom-callout-shell zoom-callout-shell-desktop">
                         <svg class="zoom-callout zoom-callout-desktop" viewBox="0 0 1840 600"
                             preserveAspectRatio="xMidYMid meet"
                             xmlns="http://www.w3.org/2000/svg"
@@ -456,35 +462,39 @@
                             </g>
 
                             <!-- RIGHT: single combined panel with top + displacement (left half)
-                                 and the big 3D slice-plane view (right half). -->
+                                 and the big 3D slice-plane view (right half). The
+                                 actual <video> elements are siblings of this <svg>
+                                 (see below) — Safari has a long-standing bug with
+                                 <video> inside <foreignObject> where the videos
+                                 escape the SVG and render at the wrong page coords. -->
                             <rect class="zoom-target-frame" x="620" y="0" width="1220" height="600"/>
-                            <foreignObject x="630" y="132" width="336" height="336">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/top_labeled.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
-                            </foreignObject>
-                            <foreignObject x="986" y="132" width="224" height="336">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/displacement_labeled.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
-                            </foreignObject>
-                            <foreignObject x="1250" y="10" width="580" height="580">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/side.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
-                            </foreignObject>
                         </svg>
+                        <!-- Dipole videos overlaid as plain HTML siblings of the
+                             SVG. Percentages are derived from the original
+                             foreignObject (x, y, w, h) divided by the SVG viewBox
+                             (1840 × 600), so they sit exactly where the foreignObjects
+                             used to. The shell sets aspect-ratio: 1840 / 600 so these
+                             percentages stay accurate at every viewport width. -->
+                        <video class="dipole-overlay dipole-top-d"
+                            src="./video/top_labeled.mp4"
+                            autoplay loop muted playsinline preload="metadata"
+                            aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
+                        <video class="dipole-overlay dipole-disp-d"
+                            src="./video/displacement_labeled.mp4"
+                            autoplay loop muted playsinline preload="metadata"
+                            aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
+                        <video class="dipole-overlay dipole-side-d"
+                            src="./video/side.mp4"
+                            autoplay loop muted playsinline preload="metadata"
+                            aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
+                        </div>
 
                         <!-- Mobile / narrow layout: heatmap on TOP, the three
                              dipole videos in a single row BELOW. Uses a tall
                              (~1:1) viewBox so the heatmap and videos both stay
-                             readable on a phone screen. -->
+                             readable on a phone screen. Same shell + HTML video
+                             overlay strategy as the desktop layout above. -->
+                        <div class="zoom-callout-shell zoom-callout-shell-mobile">
                         <svg class="zoom-callout zoom-callout-mobile" viewBox="0 0 1080 1090"
                             preserveAspectRatio="xMidYMid meet"
                             xmlns="http://www.w3.org/2000/svg"
@@ -520,30 +530,24 @@
 
                             <!-- Order matches the desktop layout: top, displacement,
                                  side (left to right), so the figure reads the same
-                                 way regardless of viewport. -->
+                                 way regardless of viewport. Videos themselves are
+                                 HTML siblings of the SVG (Safari foreignObject+video
+                                 workaround). -->
                             <rect class="zoom-target-frame" x="10" y="720" width="1060" height="360"/>
-                            <foreignObject x="20" y="730" width="340" height="340">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/top_labeled.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
-                            </foreignObject>
-                            <foreignObject x="370" y="730" width="340" height="340">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/displacement_labeled.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
-                            </foreignObject>
-                            <foreignObject x="720" y="730" width="340" height="340">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/side.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
-                            </foreignObject>
                         </svg>
+                        <video class="dipole-overlay dipole-top-m"
+                            src="./video/top_labeled.mp4"
+                            autoplay loop muted playsinline preload="metadata"
+                            aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
+                        <video class="dipole-overlay dipole-disp-m"
+                            src="./video/displacement_labeled.mp4"
+                            autoplay loop muted playsinline preload="metadata"
+                            aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
+                        <video class="dipole-overlay dipole-side-m"
+                            src="./video/side.mp4"
+                            autoplay loop muted playsinline preload="metadata"
+                            aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
+                        </div>
                     </figure>
                 </div>
             </div>

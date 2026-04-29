@@ -331,19 +331,17 @@ h2.title.is-3:focus-within .heading-anchor,
     box-shadow: 0 0 18px rgba(0, 0, 0, 0.22);
 }
 
-/* SVG content can't take a CSS box-shadow cleanly, so use a matching
-   `drop-shadow` filter on each inner panel of the geometry-appearance
-   figure (the heatmap image and the dipole frame box). The heatmap is
-   wrapped in a `<g clip-path="url(#heatmap-clip-...)">` group with a
-   rounded-rect clip, so the filter has to live on that group (not on
-   the `<image>` itself) for the shadow to follow the rounded edge. */
-.zoom-callout > g[clip-path] {
-    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.22));
-}
-
-.zoom-callout .zoom-target-frame {
-    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.22));
-}
+/* Geometry-appearance figure: the dipole videos used to live inside
+   <foreignObject> children of the SVG, but Safari has a long-standing
+   bug where <video> inside <foreignObject> escapes the SVG and renders
+   at the wrong page coordinates (huge, scattered, with the side-view
+   sphere often missing entirely). The figure is now structured as a
+   shell <div> wrapping the SVG (heatmap + marker + rays + frame only)
+   plus three plain HTML <video> overlays positioned with percentages
+   that mirror the original foreignObject coordinates. The heatmap and
+   dipole frame render without their own drop-shadow because applying
+   a CSS filter to an SVG subtree that uses clip-path also breaks in
+   Safari; the figure reads cleanly in every browser this way. */
 
 .teaser-video {
     display: block;
@@ -682,17 +680,55 @@ h2.title.is-3:focus-within .heading-anchor,
     margin-bottom: 0;
 }
 
+/* The SVG only carries the heatmap, marker, rays, and frame. The dipole
+   videos are HTML siblings overlaid on top of the SVG (Safari has a
+   long-standing bug where <video> inside <foreignObject> escapes the SVG
+   and renders at the wrong page coordinates). The shell is a
+   position-relative box whose aspect-ratio matches the SVG viewBox so the
+   overlaid videos sit at exactly the right percentage coordinates. */
+.zoom-callout-shell {
+    position: relative;
+    width: 100%;
+    isolation: isolate;
+}
+
+.zoom-callout-shell-desktop {
+    aspect-ratio: 1840 / 600;
+}
+
+.zoom-callout-shell-mobile {
+    aspect-ratio: 1080 / 1090;
+    display: none;
+}
+
 .zoom-callout {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
 }
 
-/* The figure ships two SVGs (a wide desktop layout and a stacked mobile
-   layout); only the appropriate one is shown at any given breakpoint. */
-.zoom-callout-mobile {
-    display: none;
+/* HTML video overlays standing in for the old <foreignObject> children.
+   left/top/width/height percentages are computed from the original
+   foreignObject (x, y, w, h) divided by the SVG viewBox dimensions, so
+   each video sits exactly where it used to inside the SVG. */
+.dipole-overlay {
+    position: absolute;
+    object-fit: contain;
+    background: transparent;
+    display: block;
+    border-radius: 4px;
+    overflow: hidden;
 }
+
+/* Desktop viewBox: 0 0 1840 600 */
+.dipole-top-d  { left: 34.2391%; top: 22%;      width: 18.2609%; height: 56%; }
+.dipole-disp-d { left: 53.5870%; top: 22%;      width: 12.1739%; height: 56%; }
+.dipole-side-d { left: 67.9348%; top: 1.6667%;  width: 31.5217%; height: 96.6667%; }
+
+/* Mobile viewBox: 0 0 1080 1090 */
+.dipole-top-m  { left: 1.8519%;  top: 66.9725%; width: 31.4815%; height: 31.1927%; }
+.dipole-disp-m { left: 34.2593%; top: 66.9725%; width: 31.4815%; height: 31.1927%; }
+.dipole-side-m { left: 66.6667%; top: 66.9725%; width: 31.4815%; height: 31.1927%; }
 
 .zoom-callout .zoom-marker {
     fill: none;
@@ -1288,11 +1324,11 @@ pre.bibtex-block {
         margin-right: calc(50% - 50vw);
     }
 
-    .zoom-callout-desktop {
+    .zoom-callout-shell-desktop {
         display: none;
     }
 
-    .zoom-callout-mobile {
+    .zoom-callout-shell-mobile {
         display: block;
     }
 
