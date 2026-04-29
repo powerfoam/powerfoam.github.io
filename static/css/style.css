@@ -1015,22 +1015,45 @@ h2.title.is-3:focus-within .heading-anchor,
     margin: 0 auto;
 }
 
-/* Method opener: the three_voronoi.mp4 preview that lives at the very
-   top of the Method section. Matches the panel-shadow / radius of the
-   rest of the page; capped slightly narrower than the body width so it
-   doesn't dominate the recipe text directly above it. */
+/* Method opener: a 3-up row of square videos (bounded power diagram,
+   soft 2D Voronoi, spherical Voronoi) sitting just below the recipe
+   bullets. The videos line up left-to-right with the three bullets so
+   the connection between text and animation reads at a glance. Each
+   tile gets the same panel shadow / radius as the rest of the page. */
 .method-recipe-figure {
     margin: 0 auto 2rem auto;
-    max-width: 720px;
 }
 
-.method-recipe-video {
+.method-recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.method-recipe-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.method-recipe-cell video {
     display: block;
     width: 100%;
     height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
     border-radius: 8px;
     background-color: #000;
     box-shadow: 0 0 18px rgba(0, 0, 0, 0.22);
+}
+
+/* Keep the per-video label a touch tighter than the global .video-caption
+   default so the three caption rows don't visually swamp the videos
+   themselves; still uses the same Jost / .title.is-5 typography as the
+   captions in Fisheye and Qualitative Comparisons. */
+.method-recipe-cell .video-caption {
+    margin-top: 0.9rem !important;
+    margin-bottom: 0 !important;
 }
 
 .method-caption {
