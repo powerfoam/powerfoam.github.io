@@ -905,11 +905,19 @@ h2.title.is-3:focus-within .heading-anchor,
     cursor: grabbing;
 }
 
+/* Interactive method-figure panel labels (Voronoi / power / bounded
+   power, etc.). Match the .title.is-5 typography used by the rest of
+   the page's video captions so every figure label reads with the same
+   weight and family; the margin is kept tighter than .video-caption
+   (1.5 rem) because each panel already has room for its own controls
+   directly underneath. */
 .interactive-panel-label {
-    font-size: 0.85rem;
-    color: #666;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.125;
+    color: #363636;
     text-align: center;
-    margin-top: 0.3rem;
+    margin-top: 0.7rem;
 }
 
 .interactive-panel-wrap {
@@ -1285,15 +1293,6 @@ pre.bibtex-block {
     .container.is-max-desktop {
         padding-left: 1rem;
         padding-right: 1rem;
-    }
-
-    /* Justified body copy creates ugly word-spacing rivers in narrow
-       columns (especially the Abstract paragraph on phones). Fall back
-       to natural left alignment so the spacing matches the captions
-       and the rest of the page reads cleanly. */
-    .content.has-text-justified,
-    .content.has-text-justified p {
-        text-align: left !important;
     }
 
     /* ---- Interactive method figures ----
