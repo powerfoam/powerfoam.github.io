@@ -285,6 +285,25 @@
 
             <div class="columns is-centered">
                 <div class="column is-full">
+                    <!-- Method opener: the one-line recipe + the three_voronoi
+                         video that visually previews each level of the Voronoi
+                         hierarchy used in the rest of the section. -->
+                    <div class="content has-text-justified">
+                        <p>
+                            Our recipe is <em>Voronoi at every scale</em>:
+                        </p>
+                        <ul>
+                            <li>Bounded <em>power</em> diagram &rarr; 3D geometry (cells with controllable extent)</li>
+                            <li>2D Voronoi on each cell &rarr; texture / displacement</li>
+                            <li>Spherical Voronoi on each texture site &rarr; directional radiance</li>
+                        </ul>
+                    </div>
+                    <figure class="method-figure method-recipe-figure">
+                        <video class="method-recipe-video"
+                            src="./video/three_voronoi.mp4"
+                            autoplay loop muted playsinline preload="metadata"
+                            aria-label="Animation cycling through the bounded power diagram, the 2D Voronoi tessellation on a cell, and the spherical Voronoi on a texture site."></video>
+                    </figure>
                     <div class="content has-text-justified">
                         <p>
                             Our goal is to construct a representation that can be both rasterized
@@ -396,8 +415,8 @@
                             site push the surface up or down locally along the axis of the
                             dipole, and our soft Voronoi formulation distributes both these
                             displacements and the directional radiance \( c_i \) of each
-                            detail site across the dipole plane (shown side, top-down, and
-                            with displacement, left to right).
+                            detail site across the dipole plane (shown top-down,
+                            with displacement, and side, left to right).
                         </p>
                     </div>
                     <figure class="zoom-figure">
@@ -422,7 +441,7 @@
                         <svg class="zoom-callout zoom-callout-desktop" viewBox="0 0 1840 600"
                             preserveAspectRatio="xMidYMid meet"
                             xmlns="http://www.w3.org/2000/svg"
-                            aria-label="Distance heatmap of the Garden scene with a single leaf-tip cell highlighted, shown zoomed-in as side, top-down, and displacement views of its underlying dipole sphere.">
+                            aria-label="Distance heatmap of the Garden scene with a single leaf-tip cell highlighted, shown zoomed-in as top-down, displacement, and side views of its underlying dipole sphere.">
                             <!-- Zoomed-in heatmap. The image and marker live in a
                                  <g> that scales by HEATMAP_SCALE around the marker
                                  centre (287+30.5, 92+30.5) = (317.5, 122.5), so the
@@ -498,9 +517,17 @@
                         <svg class="zoom-callout zoom-callout-mobile" viewBox="0 0 1080 1090"
                             preserveAspectRatio="xMidYMid meet"
                             xmlns="http://www.w3.org/2000/svg"
-                            aria-label="Distance heatmap of the Garden scene with a single leaf-tip cell highlighted, shown zoomed-in as side, top-down, and displacement views of its underlying dipole sphere.">
-                            <!-- See the desktop layout above for the zoom math. Marker
-                                 centre (557, 360), SCALE=2.5 → tx=-835.5, ty=-540. -->
+                            aria-label="Distance heatmap of the Garden scene with a single leaf-tip cell highlighted, shown zoomed-in as top-down, displacement, and side views of its underlying dipole sphere.">
+                            <!-- The desktop layout shows a square 600×600 crop of the
+                                 1920×1088 heatmap centred on pixel (~992, ~222) — the
+                                 leaf-tip cell. The mobile heatmap is wider (1080×608)
+                                 and uses the default `xMidYMid meet` so the image
+                                 fits inside without cropping; on that scale the same
+                                 leaf-tip pixel lands at inner coords (~558, ~124).
+                                 We zoom 2.5× around that point so mobile readers
+                                 see the same region of the scene as desktop, just
+                                 with a slightly wider field of view. Transform:
+                                 translate(-1.5·558, -1.5·124) = (-837, -186). -->
                             <defs>
                                 <!-- Rounded-rect clip so the heatmap renders with
                                      softened corners (matches the desktop layout
@@ -510,22 +537,23 @@
                                 </clipPath>
                             </defs>
                             <g clip-path="url(#heatmap-clip-mobile)">
-                                <g transform="translate(-835.5 -540) scale(2.5)">
+                                <g transform="translate(-837 -186) scale(2.5)">
                                     <image href="./static/images/trajectory_distance_heatmap_first_frame.png"
                                         x="0" y="0" width="1080" height="608"/>
                                     <!-- Marker is 20×20 in child coords (renders 50×50
-                                         after the scale(2.5)) so it tightly hugs a
-                                         single sphere. On-screen centre unchanged:
-                                         (547+10, 350+10) = (557, 360). -->
-                                    <rect class="zoom-marker" x="547" y="350" width="20" height="20"
+                                         after the scale(2.5)) so it tightly hugs the
+                                         leaf-tip cell. On-screen centre:
+                                         (548+10, 114+10) = (558, 124). -->
+                                    <rect class="zoom-marker" x="548" y="114" width="20" height="20"
                                         vector-effect="non-scaling-stroke"/>
                                 </g>
                             </g>
                             <g class="zoom-rays">
                                 <!-- Rays anchor at the marker's on-screen bottom-left
-                                     (532, 385) and bottom-right (582, 385). -->
-                                <line x1="532" y1="385" x2="10" y2="720"/>
-                                <line x1="582" y1="385" x2="1070" y2="720"/>
+                                     (533, 149) and bottom-right (583, 149) and reach
+                                     down to the top corners of the dipole frame. -->
+                                <line x1="533" y1="149" x2="10" y2="720"/>
+                                <line x1="583" y1="149" x2="1070" y2="720"/>
                             </g>
 
                             <!-- Order matches the desktop layout: top, displacement,
