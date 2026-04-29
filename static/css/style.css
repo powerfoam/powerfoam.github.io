@@ -688,10 +688,72 @@ h2.title.is-3:focus-within .heading-anchor,
     height: auto;
 }
 
-/* The figure ships two SVGs (a wide desktop layout and a stacked mobile
-   layout); only the appropriate one is shown at any given breakpoint. */
-.zoom-callout-mobile {
+/* The figure ships two layout variants (desktop and mobile); only the
+   appropriate one is shown at any given breakpoint.  We toggle the wrapper
+   div rather than the SVG directly so that the overlay <video> elements
+   (which are siblings of the SVG, not inside it) are hidden at the same
+   time. */
+.zoom-frame-mobile {
     display: none;
+}
+
+/* Wrapper that establishes a positioning context for the overlay videos.
+   The in-flow SVG (width:100%; height:auto) naturally sizes the wrapper to
+   the correct height, so absolutely-positioned children can use percentage
+   coordinates that map 1-to-1 onto the SVG viewBox units. */
+.zoom-frame {
+    position: relative;
+}
+
+/* Overlay videos replace <foreignObject> content.  Safari does not apply
+   the SVG coordinate-system transform to foreignObject HTML content, so
+   videos inside foreignObject ignore the viewBox scale and overflow the
+   page.  Absolutely-positioned siblings with % coordinates computed from
+   the viewBox dimensions are visually identical and work in all browsers.
+
+   Coordinate formulae (desktop viewBox 0 0 1840 600):
+     left   = x / 1840 * 100%
+     top    = y / 600  * 100%
+     width  = w / 1840 * 100%
+     height = h / 600  * 100%
+
+   Coordinate formulae (mobile viewBox 0 0 1080 1090):
+     left   = x / 1080 * 100%
+     top    = y / 1090 * 100%
+     width  = w / 1080 * 100%
+     height = h / 1090 * 100%  */
+.zoom-video {
+    position: absolute;
+    object-fit: contain;
+    background: transparent;
+}
+
+/* Desktop: viewBox 0 0 1840 600 ------------------------------------- */
+/* top-down:     x=630,  y=132, w=336, h=336 */
+.zoom-video-desktop-top {
+    left: 34.24%; top: 22.00%; width: 18.26%; height: 56.00%;
+}
+/* displacement: x=986,  y=132, w=224, h=336 */
+.zoom-video-desktop-displacement {
+    left: 53.59%; top: 22.00%; width: 12.17%; height: 56.00%;
+}
+/* side:         x=1250, y=10,  w=580, h=580 */
+.zoom-video-desktop-side {
+    left: 67.93%; top:  1.67%; width: 31.52%; height: 96.67%;
+}
+
+/* Mobile: viewBox 0 0 1080 1090 -------------------------------------- */
+/* top-down:     x=20,  y=730, w=340, h=340 */
+.zoom-video-mobile-top {
+    left:  1.85%; top: 67.00%; width: 31.48%; height: 31.19%;
+}
+/* displacement: x=370, y=730, w=340, h=340 */
+.zoom-video-mobile-displacement {
+    left: 34.26%; top: 67.00%; width: 31.48%; height: 31.19%;
+}
+/* side:         x=720, y=730, w=340, h=340 */
+.zoom-video-mobile-side {
+    left: 66.67%; top: 67.00%; width: 31.48%; height: 31.19%;
 }
 
 .zoom-callout .zoom-marker {
@@ -1288,11 +1350,11 @@ pre.bibtex-block {
         margin-right: calc(50% - 50vw);
     }
 
-    .zoom-callout-desktop {
+    .zoom-frame-desktop {
         display: none;
     }
 
-    .zoom-callout-mobile {
+    .zoom-frame-mobile {
         display: block;
     }
 

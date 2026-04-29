@@ -412,138 +412,142 @@
                                    displacement.mp4 (2:3), sized to a shared
                                    336 px height so they sit on a common
                                    baseline and exactly fill the 580 px-wide
-                                   inner area with a 20 px gap. -->
-                        <svg class="zoom-callout zoom-callout-desktop" viewBox="0 0 1840 600"
-                            preserveAspectRatio="xMidYMid meet"
-                            xmlns="http://www.w3.org/2000/svg"
-                            aria-label="Distance heatmap of the Garden scene with a single leaf-tip cell highlighted, shown zoomed-in as side, top-down, and displacement views of its underlying dipole sphere.">
-                            <!-- Zoomed-in heatmap. The image and marker live in a
-                                 <g> that scales by HEATMAP_SCALE around the marker
-                                 centre (287+30.5, 92+30.5) = (317.5, 122.5), so the
-                                 highlighted leaf-tip cell stays put while the
-                                 surrounding heatmap detail grows. The wrapping
-                                 clipPath keeps the image within its 600x600 cell
-                                 so it doesn't bleed into the right panel.
-                                 SCALE=2.5: tx=317.5*(1-2.5)=-476.25, ty=-183.75. -->
-                            <defs>
-                                <!-- Rounded-rect clip so the heatmap renders with the
-                                     same 8 px-ish radius as every other panel on the
-                                     page. SVG `<image>` doesn't honour border-radius,
-                                     hence the clipPath. -->
-                                <clipPath id="heatmap-clip-desktop">
-                                    <rect x="0" y="0" width="600" height="600" rx="18" ry="18"/>
-                                </clipPath>
-                            </defs>
-                            <g clip-path="url(#heatmap-clip-desktop)">
-                                <g transform="translate(-476.25 -183.75) scale(2.5)">
-                                    <image href="./static/images/trajectory_distance_heatmap_first_frame.png"
-                                        x="0" y="0" width="600" height="600"
-                                        preserveAspectRatio="xMidYMid slice"/>
-                                    <!-- Marker is 20×20 in child coords (renders 50×50
-                                         in viewBox units after the parent scale(2.5))
-                                         so it tightly hugs a single sphere. On-screen
-                                         centre is unchanged: (307.5+10, 112.5+10) =
-                                         (317.5, 122.5). -->
-                                    <rect class="zoom-marker" x="307.5" y="112.5" width="20" height="20"
-                                        vector-effect="non-scaling-stroke"/>
-                                </g>
-                            </g>
-                            <g class="zoom-rays">
-                                <!-- Rays anchor at the marker's on-screen top-right
-                                     (342.5, 97.5) and bottom-right (342.5, 147.5). -->
-                                <line x1="342.5" y1="97.5"  x2="620" y2="0"/>
-                                <line x1="342.5" y1="147.5" x2="620" y2="600"/>
-                            </g>
+                                   inner area with a 20 px gap.
 
-                            <!-- RIGHT: single combined panel with top + displacement (left half)
-                                 and the big 3D slice-plane view (right half). -->
-                            <rect class="zoom-target-frame" x="620" y="0" width="1220" height="600"/>
-                            <foreignObject x="630" y="132" width="336" height="336">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/top_labeled.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
-                            </foreignObject>
-                            <foreignObject x="986" y="132" width="224" height="336">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/displacement_labeled.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
-                            </foreignObject>
-                            <foreignObject x="1250" y="10" width="580" height="580">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/side.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
-                            </foreignObject>
-                        </svg>
+                             The videos are placed as absolutely-positioned
+                             siblings of the SVG rather than inside
+                             <foreignObject> elements.  Safari does not apply
+                             the SVG coordinate-system scale to foreignObject
+                             content, so videos rendered that way overflow
+                             the SVG bounds and push the page wider.  Using
+                             CSS position:absolute with percentage coordinates
+                             (derived from the SVG viewBox) is equivalent
+                             visually and works correctly in all browsers. -->
+                        <div class="zoom-frame zoom-frame-desktop">
+                            <svg class="zoom-callout zoom-callout-desktop" viewBox="0 0 1840 600"
+                                preserveAspectRatio="xMidYMid meet"
+                                xmlns="http://www.w3.org/2000/svg"
+                                aria-hidden="true">
+                                <!-- Zoomed-in heatmap. The image and marker live in a
+                                     <g> that scales by HEATMAP_SCALE around the marker
+                                     centre (287+30.5, 92+30.5) = (317.5, 122.5), so the
+                                     highlighted leaf-tip cell stays put while the
+                                     surrounding heatmap detail grows. The wrapping
+                                     clipPath keeps the image within its 600x600 cell
+                                     so it doesn't bleed into the right panel.
+                                     SCALE=2.5: tx=317.5*(1-2.5)=-476.25, ty=-183.75. -->
+                                <defs>
+                                    <!-- Rounded-rect clip so the heatmap renders with the
+                                         same 8 px-ish radius as every other panel on the
+                                         page. SVG `<image>` doesn't honour border-radius,
+                                         hence the clipPath. -->
+                                    <clipPath id="heatmap-clip-desktop">
+                                        <rect x="0" y="0" width="600" height="600" rx="18" ry="18"/>
+                                    </clipPath>
+                                </defs>
+                                <g clip-path="url(#heatmap-clip-desktop)">
+                                    <g transform="translate(-476.25 -183.75) scale(2.5)">
+                                        <image href="./static/images/trajectory_distance_heatmap_first_frame.png"
+                                            x="0" y="0" width="600" height="600"
+                                            preserveAspectRatio="xMidYMid slice"/>
+                                        <!-- Marker is 20×20 in child coords (renders 50×50
+                                             in viewBox units after the parent scale(2.5))
+                                             so it tightly hugs a single sphere. On-screen
+                                             centre is unchanged: (307.5+10, 112.5+10) =
+                                             (317.5, 122.5). -->
+                                        <rect class="zoom-marker" x="307.5" y="112.5" width="20" height="20"
+                                            vector-effect="non-scaling-stroke"/>
+                                    </g>
+                                </g>
+                                <g class="zoom-rays">
+                                    <!-- Rays anchor at the marker's on-screen top-right
+                                         (342.5, 97.5) and bottom-right (342.5, 147.5). -->
+                                    <line x1="342.5" y1="97.5"  x2="620" y2="0"/>
+                                    <line x1="342.5" y1="147.5" x2="620" y2="600"/>
+                                </g>
+
+                                <!-- RIGHT panel outline; videos are overlaid via CSS. -->
+                                <rect class="zoom-target-frame" x="620" y="0" width="1220" height="600"/>
+                            </svg>
+                            <!-- Videos positioned with % coords derived from the viewBox
+                                 (0 0 1840 600): left=x/1840, top=y/600, w=w/1840, h=h/600.
+                                 top:          x=630, y=132, w=336, h=336
+                                 displacement: x=986, y=132, w=224, h=336
+                                 side:         x=1250, y=10,  w=580, h=580 -->
+                            <video class="zoom-video zoom-video-desktop-top"
+                                src="./video/top_labeled.mp4"
+                                autoplay loop muted playsinline preload="metadata"
+                                aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
+                            <video class="zoom-video zoom-video-desktop-displacement"
+                                src="./video/displacement_labeled.mp4"
+                                autoplay loop muted playsinline preload="metadata"
+                                aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
+                            <video class="zoom-video zoom-video-desktop-side"
+                                src="./video/side.mp4"
+                                autoplay loop muted playsinline preload="metadata"
+                                aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
+                        </div>
 
                         <!-- Mobile / narrow layout: heatmap on TOP, the three
                              dipole videos in a single row BELOW. Uses a tall
                              (~1:1) viewBox so the heatmap and videos both stay
                              readable on a phone screen. -->
-                        <svg class="zoom-callout zoom-callout-mobile" viewBox="0 0 1080 1090"
-                            preserveAspectRatio="xMidYMid meet"
-                            xmlns="http://www.w3.org/2000/svg"
-                            aria-label="Distance heatmap of the Garden scene with a single leaf-tip cell highlighted, shown zoomed-in as side, top-down, and displacement views of its underlying dipole sphere.">
-                            <!-- See the desktop layout above for the zoom math. Marker
-                                 centre (557, 360), SCALE=2.5 → tx=-835.5, ty=-540. -->
-                            <defs>
-                                <!-- Rounded-rect clip so the heatmap renders with
-                                     softened corners (matches the desktop layout
-                                     and the rest of the site's panel rounding). -->
-                                <clipPath id="heatmap-clip-mobile">
-                                    <rect x="0" y="0" width="1080" height="608" rx="18" ry="18"/>
-                                </clipPath>
-                            </defs>
-                            <g clip-path="url(#heatmap-clip-mobile)">
-                                <g transform="translate(-835.5 -540) scale(2.5)">
-                                    <image href="./static/images/trajectory_distance_heatmap_first_frame.png"
-                                        x="0" y="0" width="1080" height="608"/>
-                                    <!-- Marker is 20×20 in child coords (renders 50×50
-                                         after the scale(2.5)) so it tightly hugs a
-                                         single sphere. On-screen centre unchanged:
-                                         (547+10, 350+10) = (557, 360). -->
-                                    <rect class="zoom-marker" x="547" y="350" width="20" height="20"
-                                        vector-effect="non-scaling-stroke"/>
+                        <div class="zoom-frame zoom-frame-mobile">
+                            <svg class="zoom-callout zoom-callout-mobile" viewBox="0 0 1080 1090"
+                                preserveAspectRatio="xMidYMid meet"
+                                xmlns="http://www.w3.org/2000/svg"
+                                aria-hidden="true">
+                                <!-- See the desktop layout above for the zoom math. Marker
+                                     centre (557, 360), SCALE=2.5 → tx=-835.5, ty=-540. -->
+                                <defs>
+                                    <!-- Rounded-rect clip so the heatmap renders with
+                                         softened corners (matches the desktop layout
+                                         and the rest of the site's panel rounding). -->
+                                    <clipPath id="heatmap-clip-mobile">
+                                        <rect x="0" y="0" width="1080" height="608" rx="18" ry="18"/>
+                                    </clipPath>
+                                </defs>
+                                <g clip-path="url(#heatmap-clip-mobile)">
+                                    <g transform="translate(-835.5 -540) scale(2.5)">
+                                        <image href="./static/images/trajectory_distance_heatmap_first_frame.png"
+                                            x="0" y="0" width="1080" height="608"/>
+                                        <!-- Marker is 20×20 in child coords (renders 50×50
+                                             after the scale(2.5)) so it tightly hugs a
+                                             single sphere. On-screen centre unchanged:
+                                             (547+10, 350+10) = (557, 360). -->
+                                        <rect class="zoom-marker" x="547" y="350" width="20" height="20"
+                                            vector-effect="non-scaling-stroke"/>
+                                    </g>
                                 </g>
-                            </g>
-                            <g class="zoom-rays">
-                                <!-- Rays anchor at the marker's on-screen bottom-left
-                                     (532, 385) and bottom-right (582, 385). -->
-                                <line x1="532" y1="385" x2="10" y2="720"/>
-                                <line x1="582" y1="385" x2="1070" y2="720"/>
-                            </g>
+                                <g class="zoom-rays">
+                                    <!-- Rays anchor at the marker's on-screen bottom-left
+                                         (532, 385) and bottom-right (582, 385). -->
+                                    <line x1="532" y1="385" x2="10" y2="720"/>
+                                    <line x1="582" y1="385" x2="1070" y2="720"/>
+                                </g>
 
-                            <!-- Order matches the desktop layout: top, displacement,
-                                 side (left to right), so the figure reads the same
-                                 way regardless of viewport. -->
-                            <rect class="zoom-target-frame" x="10" y="720" width="1060" height="360"/>
-                            <foreignObject x="20" y="730" width="340" height="340">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/top_labeled.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
-                            </foreignObject>
-                            <foreignObject x="370" y="730" width="340" height="340">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/displacement_labeled.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
-                            </foreignObject>
-                            <foreignObject x="720" y="730" width="340" height="340">
-                                <video xmlns="http://www.w3.org/1999/xhtml"
-                                    src="./video/side.mp4"
-                                    autoplay loop muted playsinline preload="metadata"
-                                    style="width:100%;height:100%;object-fit:contain;display:block;background:transparent;"
-                                    aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
-                            </foreignObject>
-                        </svg>
+                                <!-- Bottom panel outline; videos are overlaid via CSS. -->
+                                <rect class="zoom-target-frame" x="10" y="720" width="1060" height="360"/>
+                            </svg>
+                            <!-- Videos positioned with % coords derived from the viewBox
+                                 (0 0 1080 1090): left=x/1080, top=y/1090, w=w/1080, h=h/1090.
+                                 Order matches desktop: top, displacement, side (left to right).
+                                 top:          x=20,  y=730, w=340, h=340
+                                 displacement: x=370, y=730, w=340, h=340
+                                 side:         x=720, y=730, w=340, h=340 -->
+                            <video class="zoom-video zoom-video-mobile-top"
+                                src="./video/top_labeled.mp4"
+                                autoplay loop muted playsinline preload="metadata"
+                                aria-label="Top-down view of the soft Voronoi distribution of displacement and radiance across the dipole plane."></video>
+                            <video class="zoom-video zoom-video-mobile-displacement"
+                                src="./video/displacement_labeled.mp4"
+                                autoplay loop muted playsinline preload="metadata"
+                                aria-label="Displacement values d_i pushing the dipole surface up or down along the dipole axis."></video>
+                            <video class="zoom-video zoom-video-mobile-side"
+                                src="./video/side.mp4"
+                                autoplay loop muted playsinline preload="metadata"
+                                aria-label="Side view of the dipole sphere at the selected leaf-tip cell."></video>
+                        </div>
                     </figure>
                 </div>
             </div>
